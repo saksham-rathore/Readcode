@@ -32,7 +32,7 @@ async def lifespan(_: FastAPI):
     await engine.dispose()
 
 
-app = FastAPI(title="T3 Code API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="readcode API", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=True, allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["Authorization", "Content-Type", "X-User-ID"])
 if settings.app_env == "production":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.hosts)

@@ -1,4 +1,4 @@
-# T3 Code starter
+# readcode starter
 
 A fresh dark coding workspace with a Next.js UI and a separate async Python API. The API already supports tenant-scoped project records, saved conversations, OpenAI-compatible chat, Postgres persistence, Redis rate limiting, readiness checks, and versioned database migrations.
 

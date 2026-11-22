@@ -6,13 +6,13 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "T3 Code — Your AI coding workspace",
+  title: "readcode — Your AI coding workspace",
   description: "Explore projects, understand code, and make your next move with an AI coding partner.",
-  applicationName: "T3 Code",
+  applicationName: "readcode",
   openGraph: {
-    title: "T3 Code — Your AI coding workspace",
+    title: "readcode — Your AI coding workspace",
     description: "Explore projects, understand code, and make your next move with an AI coding partner.",
-    siteName: "T3 Code",
+    siteName: "readcode",
     type: "website",
   },
 };
