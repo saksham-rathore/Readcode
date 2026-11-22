@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import "./landing.css";
 import { brand, nav, hero, features, models, steps, plans, faq, footer } from "./content";
 
@@ -21,21 +22,28 @@ function useReveal() {
 
 function AppWindow() {
   return (
-    <div className="win" aria-hidden="true">
-      <div className="win-bar"><i /><i /><i /><span>auth-refactor</span></div>
-      <div className="win-body">
-        <aside>
-          <b>Threads</b>
-          <p className="on">Fix login redirect</p>
-          <p>Add rate limiting</p>
-          <p>Migrate to zod</p>
-        </aside>
-        <div className="diff">
-          <code className="ln del">- if (user) router.push("/home")</code>
-          <code className="ln add">+ if (user) router.replace(next ?? "/home")</code>
-          <code className="ln add">+ // keep the page the user came from</code>
-          <div className="ask"><span>Run npm test?</span><button>Allow</button><button className="ghost">Skip</button></div>
-          <div className="composer">Tell the agent what to change…</div>
+    <div className="hero-scene" id="demo">
+      <div className="scene-sprites" aria-hidden="true"><span>✦</span><span>✦</span><span>✦</span></div>
+      <div className="win" aria-label="Readcode coding workspace preview">
+        <div className="win-bar"><span className="traffic"><i /><i /><i /></span><span className="window-product">readcode</span><span className="window-caption">a preview of your coding workspace.</span></div>
+        <div className="win-body">
+          <aside className="preview-contacts">
+            <div className="contact-tools"><span>⌕</span><span>+</span></div>
+            <div className="contact selected"><span className="contact-avatar gray">R</span><div><b>Readcode</b><small>Plan ready to review</small></div></div>
+            <div className="contact"><span className="contact-avatar purple">P</span><div><b>Patch</b><small>Found the login issue</small></div></div>
+            <div className="contact"><span className="contact-avatar pink">S</span><div><b>Scout</b><small>Mapped the API flow</small></div></div>
+            <div className="contact"><span className="contact-avatar blue">B</span><div><b>Builder</b><small>Settings screen drafted</small></div></div>
+          </aside>
+          <div className="preview-chat">
+            <div className="preview-chat-title"><span className="contact-avatar gray">R</span> Readcode</div>
+            <div className="preview-date">Today, 10:42</div>
+            <div className="preview-prompt">Make the first-run dashboard useful for a new project.</div>
+            <div className="preview-reply">I found three small changes that would make the first step clearer.</div>
+            <div className="preview-plan"><b>First-run dashboard plan</b><div><span>01</span> Welcome users to their project <em>app/page.tsx</em></div><div><span>02</span> Offer a useful first prompt <em>components/</em></div><div><span>03</span> Show the next step clearly <em>styles/</em></div></div>
+            <div className="preview-reply">Want me to draft the first screen? You can review every suggestion.</div>
+            <div className="preview-composer">Message Readcode <span>+</span></div>
+          </div>
+          <div className="preview-details"><Image src="/landing/readcode-mark.svg" alt="" width={48} height={48}/><b>Readcode</b><div className="detail-tabs"><span>Details</span><span>Project</span><span>Settings</span></div><small>Project context</small><div className="detail-card"><b>readcode-app</b><span>Python API · Next.js frontend</span><span>4 conversations</span></div><small>Current task</small><div className="detail-card"><b>Onboarding flow</b><span>Plan ready for review</span></div></div>
         </div>
       </div>
     </div>
@@ -44,10 +52,11 @@ function AppWindow() {
 
 export default function Landing() {
   const ref = useReveal();
+  const [platformMenuOpen, setPlatformMenuOpen] = useState(false);
   return (
     <div className="lp" ref={ref}>
       <header className="bar">
-        <a className="logo" href="/">{brand.name}</a>
+        <a className="logo" href="/"><Image src="/landing/readcode-mark.svg" alt="" width={28} height={28}/>{brand.name}</a>
         <nav aria-label="main">
           {nav.map((n) => <a key={n.href} href={n.href}>{n.label}</a>)}
           <a className="pill dark" href={hero.primary.href}>{hero.primary.label}</a>
@@ -56,11 +65,12 @@ export default function Landing() {
 
       <main>
         <section className="hero wrap">
-          <h1>{hero.title}</h1>
+          <div className="availability"><span>available in browser on</span><span className="os-label"><Image src="/landing/macos.svg" alt="" width={14} height={14}/> macOS</span><i>·</i><span className="os-label"><Image src="/landing/windows.svg" alt="" width={14} height={14}/> Windows</span><i>·</i><span className="os-label"><Image src="/landing/linux.svg" alt="" width={14} height={14}/> Linux</span></div>
+          <h1 aria-label={hero.title}><span>from idea to code</span></h1>
           <p className="sub">{hero.sub}</p>
           <div className="actions">
-            <a className="pill dark" href={hero.primary.href}>{hero.primary.label}</a>
-            <a className="pill" href={hero.secondary.href}>{hero.secondary.label}</a>
+            <div className="primary-split"><a className="pill dark" href={hero.primary.href}><Image src="/landing/windows.svg" alt="" width={16} height={16}/>{hero.primary.label}</a><button className="split-toggle" type="button" aria-label="More preview options" aria-expanded={platformMenuOpen} onClick={() => setPlatformMenuOpen((open) => !open)}><Image src="/landing/chevron.svg" alt="" width={15} height={15}/></button>{platformMenuOpen && <div className="platform-menu"><b>Current preview</b><a href="#demo" onClick={() => setPlatformMenuOpen(false)}>Browser preview</a><a href="#models" onClick={() => setPlatformMenuOpen(false)}>Python API details</a></div>}</div>
+            <a className="pill github-link" href={hero.secondary.href} target="_blank" rel="noreferrer">{hero.secondary.label}</a>
           </div>
           <p className="hint">{hero.hint}</p>
           <AppWindow />
