@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import "./landing.css";
+import CloudSky from "@/components/pixel-perfect/cloud-sky";
 import { brand, nav, navCta, hero, features, models, steps, plans, faq, footer } from "./content";
 
 function useReveal() {
@@ -23,6 +24,7 @@ function useReveal() {
 function AppWindow() {
   return (
     <div className="hero-scene" id="demo">
+      <CloudSky className="hero-scene-bg" />
       <div className="win" aria-label="Readcode coding workspace preview">
         <div className="win-bar"><span className="traffic"><i /><i /><i /></span><span className="window-product">readcode</span><span className="window-caption">a preview of your coding workspace.</span></div>
         <div className="win-body">
