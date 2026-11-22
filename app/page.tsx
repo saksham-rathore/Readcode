@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import "./landing.css";
-import { brand, nav, hero, features, models, steps, plans, faq, footer } from "./content";
+import { brand, nav, navCta, hero, features, models, steps, plans, faq, footer } from "./content";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -23,7 +23,6 @@ function useReveal() {
 function AppWindow() {
   return (
     <div className="hero-scene" id="demo">
-      <div className="scene-sprites" aria-hidden="true"><span>✦</span><span>✦</span><span>✦</span></div>
       <div className="win" aria-label="Readcode coding workspace preview">
         <div className="win-bar"><span className="traffic"><i /><i /><i /></span><span className="window-product">readcode</span><span className="window-caption">a preview of your coding workspace.</span></div>
         <div className="win-body">
@@ -59,7 +58,7 @@ export default function Landing() {
         <a className="logo" href="/"><Image src="/landing/readcode-mark.svg" alt="" width={28} height={28}/>{brand.name}</a>
         <nav aria-label="main">
           {nav.map((n) => <a key={n.href} href={n.href}>{n.label}</a>)}
-          <a className="pill dark" href={hero.primary.href}>{hero.primary.label}</a>
+          <a className="pill dark" href={navCta.href}>{navCta.label}</a>
         </nav>
       </header>
 

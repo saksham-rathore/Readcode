@@ -1,17 +1,19 @@
-﻿// Keep landing page copy in one place so the product language stays consistent.
+// Keep landing page copy in one place so the product language stays consistent.
 export const brand = { name: "readcode", tagline: "an AI coding workspace for your projects" };
 
 export const nav = [
   { label: "Features", href: "#features" },
-  { label: "Models", href: "#models" },
+  { label: "Download", href: "#download" },
   { label: "Pricing", href: "#pricing" },
   { label: "FAQ", href: "#faq" },
 ];
 
+export const navCta = { label: "sign In", href: "#signin" };
+
 export const hero = {
   title: "A clear path from idea to code",
   sub: "an AI coding workspace for your projects. Ask questions in plain language, explore a change, and get a clear next step—with you in control before anything is applied.",
-  primary: { label: "try the prototype", href: "#demo" },
+  primary: { label: "download for free", href: "#demo" },
   secondary: { label: "star on github", href: "https://github.com/saksham-rathore/Readcode" },
   hint: "browser-based prototype · Python API in development",
 };
@@ -49,7 +51,7 @@ export const faq = [
 export const footer = {
   columns: [
     { title: "Product", links: ["Features", "Pricing", "Roadmap", "Preview"] },
-    { title: "Learn", links: ["How it works", "Models", "FAQ"] },
+    { title: "Learn", links: ["How it works", "Download", "FAQ"] },
     { title: "Project", links: ["Readcode repository", "Privacy", "Contact"] },
   ],
 };
