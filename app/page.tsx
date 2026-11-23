@@ -67,7 +67,7 @@ export default function Landing() {
 
       <main>
         <section className="hero wrap">
-          <div className="availability"><span>available in browser on</span><span className="os-label"><Image src="/landing/macos.svg" alt="" width={14} height={14}/> macOS</span><i>·</i><span className="os-label"><Image src="/landing/windows.svg" alt="" width={14} height={14}/> Windows</span><i>·</i><span className="os-label"><Image src="/landing/linux.svg" alt="" width={14} height={14}/> Linux</span></div>
+          <div className="availability"><span>available on</span><span className=""><Image src="/landing/macos.svg" alt="" width={14} height={14}/> macOS</span><i>·</i><span className=""><Image src="/landing/windows.svg" alt="" width={14} height={14}/> Windows</span><i>·</i><span className=""><Image src="/landing/linux.svg" alt="" width={14} height={14}/> Linux</span></div>
           <h1 aria-label={hero.title}><span>from idea to code</span></h1>
           <p className="sub">{hero.sub}</p>
           <div className="actions">

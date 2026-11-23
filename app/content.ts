@@ -2,10 +2,10 @@
 export const brand = { name: "readcode", tagline: "an AI coding workspace for your projects" };
 
 export const nav = [
-  { label: "Features", href: "#features" },
-  { label: "Download", href: "#download" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "features", href: "#features" },
+  { label: "download", href: "#download" },
+  { label: "pricing", href: "#pricing" },
+  { label: "FAQs", href: "#faq" },
 ];
 
 export const navCta = { label: "sign In", href: "#signin" };
@@ -14,7 +14,7 @@ export const hero = {
   title: "A clear path from idea to code",
   sub: "an AI coding workspace for your projects. Ask questions in plain language, explore a change, and get a clear next step—with you in control before anything is applied.",
   primary: { label: "download for free", href: "#demo" },
-  secondary: { label: "Star On GitHub", href: "https://github.com/saksham-rathore/Readcode" },
+  secondary: { label: "star on gitHub", href: "https://github.com/saksham-rathore/Readcode" },
   hint: "browser-based prototype · Python API in development",
 };
 
