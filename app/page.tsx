@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import "./landing.css";
 import CloudSky from "@/components/pixel-perfect/cloud-sky";
-import { GithubStar } from "@/components/ui/GithubStar";
+import { GithubStar, SmileyLogo } from "@/components/ui";
 import { brand, nav, navCta, hero, features, models, steps, plans, faq, footer } from "./content";
 
 function useReveal() {
@@ -45,7 +45,7 @@ function AppWindow() {
             <div className="preview-reply">Want me to draft the first screen? You can review every suggestion.</div>
             <div className="preview-composer">Message Readcode <span>+</span></div>
           </div>
-          <div className="preview-details"><Image src="/landing/readcode-mark.svg" alt="" width={48} height={48}/><b>Readcode</b><div className="detail-tabs"><span>Details</span><span>Project</span><span>Settings</span></div><small>Project context</small><div className="detail-card"><b>readcode-app</b><span>Python API · Next.js frontend</span><span>4 conversations</span></div><small>Current task</small><div className="detail-card"><b>Onboarding flow</b><span>Plan ready for review</span></div></div>
+          <div className="preview-details"><SmileyLogo width={58} height={58} /><b>Readcode</b><div className="detail-tabs"><span>Details</span><span>Project</span><span>Settings</span></div><small>Project context</small><div className="detail-card"><b>readcode-app</b><span>Python API · Next.js frontend</span><span>4 conversations</span></div><small>Current task</small><div className="detail-card"><b>Onboarding flow</b><span>Plan ready for review</span></div></div>
         </div>
       </div>
     </div>
@@ -58,7 +58,7 @@ export default function Landing() {
   return (
     <div className="lp" ref={ref}>
       <header className="bar">
-        <a className="logo" href="/"><Image src="/landing/readcode-mark.svg" alt="" width={28} height={28}/>{brand.name}</a>
+        <a className="logo" href="/"><SmileyLogo width={38} height={38} />{brand.name}</a>
         <nav aria-label="main">
           {nav.map((n) => <a key={n.href} href={n.href}>{n.label}</a>)}
           <a className="pill dark" href={navCta.href}>{navCta.label}</a>
@@ -67,7 +67,7 @@ export default function Landing() {
 
       <main>
         <section className="hero wrap">
-          <div className="availability"><span>available on</span><span className=""><Image src="/landing/macos.svg" alt="" width={14} height={14}/> macOS</span><i>·</i><span className=""><Image src="/landing/windows.svg" alt="" width={14} height={14}/> Windows</span><i>·</i><span className=""><Image src="/landing/linux.svg" alt="" width={14} height={14}/> Linux</span></div>
+          <div className="availability"><span className="availability-prefix">available on</span><span className="os-label"><Image src="/landing/macos.svg" alt="" width={14} height={14}/>macos</span><span className="availability-dot" aria-hidden="true"/><span className="os-label"><Image src="/landing/windows.svg" alt="" width={13} height={13}/>windows</span><span className="availability-dot" aria-hidden="true"/><span className="os-label"><Image src="/landing/linux.svg" alt="" width={14} height={14}/>linux</span></div>
           <h1 aria-label={hero.title}><span>from idea to code</span></h1>
           <p className="sub">{hero.sub}</p>
           <div className="actions">
