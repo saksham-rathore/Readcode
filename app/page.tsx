@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import "./landing.css";
 import CloudSky from "@/components/pixel-perfect/cloud-sky";
+import { GithubStar } from "@/components/ui/GithubStar";
 import { brand, nav, navCta, hero, features, models, steps, plans, faq, footer } from "./content";
 
 function useReveal() {
@@ -71,7 +72,12 @@ export default function Landing() {
           <p className="sub">{hero.sub}</p>
           <div className="actions">
             <div className="primary-split"><a className="pill dark" href={hero.primary.href}><Image src="/landing/windows.svg" alt="" width={16} height={16}/>{hero.primary.label}</a><button className="split-toggle" type="button" aria-label="More preview options" aria-expanded={platformMenuOpen} onClick={() => setPlatformMenuOpen((open) => !open)}><Image src="/landing/chevron.svg" alt="" width={15} height={15}/></button>{platformMenuOpen && <div className="platform-menu"><b>Current preview</b><a href="#demo" onClick={() => setPlatformMenuOpen(false)}>Browser preview</a><a href="#models" onClick={() => setPlatformMenuOpen(false)}>Python API details</a></div>}</div>
-            <a className="pill github-link" href={hero.secondary.href} target="_blank" rel="noreferrer">{hero.secondary.label}</a>
+            <div className="github-star-wrapper">
+              <span className="github-star-badge" aria-hidden="true">
+                <GithubStar className="github-star-svg" />
+              </span>
+              <a className="pill github-link" href={hero.secondary.href} target="_blank" rel="noreferrer">{hero.secondary.label}</a>
+            </div>
           </div>
           <p className="hint">{hero.hint}</p>
           <AppWindow />
