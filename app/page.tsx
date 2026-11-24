@@ -52,6 +52,100 @@ function AppWindow() {
   );
 }
 
+const botJobs = [
+  { icon: "🔎", tone: "blue", title: "researcher", body: "Reads the docs and source so you get a grounded answer with links to the right files." },
+  { icon: "🧰", tone: "orange", title: "code reviewer", body: "Checks a change for bugs, explains what it found, and suggests a practical fix." },
+  { icon: "🗺️", tone: "purple", title: "project guide", body: "Maps unfamiliar parts of your codebase and shows you where to make your next change." },
+  { icon: "💬", tone: "pink", title: "inbox helper", body: "Turns long issue threads into a clear summary and a draft reply you can review." },
+  { icon: "📚", tone: "green", title: "documentation writer", body: "Keeps setup notes and project docs clear as your code and decisions evolve." },
+  { icon: "✨", tone: "gold", title: "task planner", body: "Breaks a feature into small steps and keeps the important context close at hand." },
+];
+
+function BotJobsShowcase() {
+  return (
+    <section className="bot-jobs wrap" aria-labelledby="bot-jobs-title">
+      <p className="bot-jobs-intro rv">
+        Give every assistant a clear role. It learns your project, keeps the context, and helps you move from question to working code.
+      </p>
+      <div className="bot-jobs-scene rv">
+        <article className="bot-jobs-card">
+          <span className="bot-jobs-kicker">YOUR PROJECT, WITH A LITTLE HELP</span>
+          <h2 id="bot-jobs-title">give each bot a job.</h2>
+          <p className="bot-jobs-subtitle">One assistant, one useful role. Start with a question and build from there.</p>
+          <div className="bot-jobs-grid">
+            {botJobs.map((job) => (
+              <div className="bot-job" key={job.title}>
+                <span className={`bot-job-icon ${job.tone}`} aria-hidden="true">{job.icon}</span>
+                <div><h3>{job.title}</h3><p>{job.body}</p></div>
+              </div>
+            ))}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
+function ManyBotsShowcase() {
+  return (
+    <section className="many-bots wrap" aria-labelledby="many-bots-title">
+      <div className="many-bots-heading rv">
+        <h2 id="many-bots-title">work with many<br className="many-bots-break" /> bots at once.</h2>
+        <p>Start with one. Add another when the work grows. Each has its own chat, job, and memory, and they can all work at the same time.</p>
+      </div>
+      <div className="many-bots-grid">
+        <article className="many-bot-card rv">
+          <h3>each bot gets its own computer</h3>
+          <p>A browser and a desktop it can use to move through a task. Watch it work, then take control when you like.</p>
+          <div className="bot-computer-preview" role="img" aria-label="Preview of a bot working in a browser">
+            <div className="bot-preview-top"><span className="mini-bot blue">▣</span><b>nova’s computer</b><span className="live-badge"><i /> live</span><span className="mouse-pill">take the mouse</span></div>
+            <code className="browser-address">google.com/travel/flights</code>
+            <div className="flight-title"><b>mumbai to lisbon</b><span>cheapest first</span></div>
+            <div className="flight-row"><b>9:40</b><span>one stop</span><strong>€84</strong><span className="flight-status held">held</span></div>
+            <div className="flight-row"><b>13:05</b><span>direct</span><strong>€112</strong><span className="flight-status">hold</span></div>
+            <div className="flight-row"><b>18:20</b><span>direct</span><strong>€139</strong><span className="flight-status">hold</span></div>
+          </div>
+        </article>
+
+        <article className="many-bot-card rv">
+          <h3>ask once and it becomes a routine</h3>
+          <p>Run a task on a schedule or when something happens. Your routines keep working in the background.</p>
+          <div className="routine-preview" role="img" aria-label="Preview of scheduled bot routines">
+            <div className="routine-prompt">summarise my inbox every weekday at 8.</div>
+            <div className="routine-row"><span className="mini-bot pink">▣</span><div><b>inbox summary</b><code>every weekday at 8:00</code></div><span className="toggle-on" /></div>
+            <div className="routine-row"><span className="mini-bot blue">▣</span><div><b>competitor prices</b><code>every monday at 9:00</code></div><span className="toggle-on" /></div>
+            <div className="routine-row"><span className="mini-bot orange">▣</span><div><b>triage new issues</b><code>when a github issue opens</code></div><span className="toggle-on" /></div>
+          </div>
+        </article>
+
+        <article className="many-bot-card rv">
+          <h3>every bot has a memory</h3>
+          <p>It keeps notes on your preferences and project. Every note is yours to read and edit.</p>
+          <div className="memory-preview" role="img" aria-label="Preview of editable assistant memories">
+            <div className="memory-heading"><span className="mini-bot blue">▣</span><b>nova’s notes on you</b><code>3 so far</code><span className="edit-pill">↗ edit</span></div>
+            <div className="memory-list">
+              <div><p><mark>aisle seat, always.</mark></p><code><mark className="new-tag">new</mark> you said it in chat, just now</code></div>
+              <div><p>dana signs off on anything over €500.</p><code>from dana’s email, on tuesday</code></div>
+              <div><p>no flights before 7:00. ever.</p><code>you said it twice, last week</code></div>
+            </div>
+          </div>
+        </article>
+
+        <article className="many-bot-card rv">
+          <h3>put bots in a group</h3>
+          <p>Give several bots one thread and let them hand work to each other. You step in when they need a yes.</p>
+          <div className="group-preview" role="img" aria-label="Preview of bots collaborating in a group chat">
+            <div className="group-heading"><b># launch</b><code>3 bots and you</code><span><i className="mini-bot orange">▣</i><i className="mini-bot gold">♟</i><i className="mini-bot pink">▣</i></span></div>
+            <div className="group-message"><span className="mini-bot orange">▣</span><div><b>rivet <code>9:12</code></b><p>fix is live <mark className="mention gold-mention">@echo</mark> you’re up</p><small>♟　♥ 2</small></div></div>
+            <div className="group-message"><span className="mini-bot gold">♟</span><div><b>echo <code>9:13</code></b><p>post drafted. <mark className="mention pink-mention">@juno</mark> can you email the list?</p></div></div>
+            <div className="group-message"><span className="mini-bot pink">▣</span><div><b>juno <code>9:14</code></b><p><mark className="mention blue-mention">@you</mark> ready to send to 1,204 people. need a yes first</p></div></div>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 export default function Landing() {
   const ref = useReveal();
   const [platformMenuOpen, setPlatformMenuOpen] = useState(false);
@@ -82,6 +176,9 @@ export default function Landing() {
           <p className="hint">{hero.hint}</p>
           <AppWindow />
         </section>
+
+        <BotJobsShowcase />
+        <ManyBotsShowcase />
 
         <section className="wrap sec" id="features">
           <h2 className="rv">Built around your projects and questions.</h2>
