@@ -3,12 +3,12 @@ export const brand = { name: "readcode", tagline: "an AI coding workspace for yo
 
 export const nav = [
   { label: "features", href: "#features" },
-  { label: "download", href: "#download" },
+  { label: "download", href: "#demo" },
   { label: "pricing", href: "#pricing" },
   { label: "FAQs", href: "#faq" },
 ];
 
-export const navCta = { label: "sign In", href: "#signin" };
+export const navCta = { label: "sign in", href: "/sign-in" };
 
 export const hero = {
   title: "A clear path from idea to code",
@@ -42,16 +42,40 @@ export const plans = [
 ];
 
 export const faq = [
-  { q: "Does my code leave my machine?", a: "Repository files are not connected to the current prototype. Prompts sent through the chat API go to the AI provider configured on the backend." },
-  { q: "Which models can I use?", a: "The backend currently calls an OpenAI-compatible chat API. The model name and API base URL are configurable on the server." },
-  { q: "Can the assistant edit or push code?", a: "Not yet. The current chat endpoint returns text only; file editing, terminal access, and Git operations still need to be implemented." },
-  { q: "Is pricing available?", a: "No. The project is a prototype and has no published paid plans or pricing yet." },
+  { q: "is readcode really free?", a: "The current prototype is free to explore. Paid Plus and Pro plans shown above are design concepts, not available subscriptions." },
+  { q: "what is readcode?", a: "Readcode is an AI coding workspace prototype for organizing projects, asking questions, and reviewing a clear next step." },
+  { q: "which AI does it use?", a: "The backend calls an OpenAI-compatible chat API. You can configure the model name and API base URL on the server." },
+  { q: "can it work on my repository?", a: "Repository connection and file indexing are planned. The current prototype supports project workspaces and conversations." },
+  { q: "where does my data go?", a: "Prompts sent through the chat API go to the AI provider configured on your backend. Repository files are not connected to the current prototype." },
+  { q: "how is this different from a chatbot?", a: "The project workspace keeps each conversation tied to its project, so questions and answers stay together." },
+  { q: "can it edit or push code?", a: "Not yet. The current chat endpoint returns text; file edits, terminal access, and Git actions are planned capabilities." },
+  { q: "can I run it on my own server?", a: "The repository includes a Python backend and a Next.js frontend you can run yourself. Hosted plans are still being explored." },
 ];
 
+const footerEmail = "hello@readcode.dev";
+
 export const footer = {
+  email: footerEmail,
   columns: [
-    { title: "Product", links: ["Features", "Pricing", "Roadmap", "Preview"] },
-    { title: "Learn", links: ["How it works", "Download", "FAQ"] },
-    { title: "Project", links: ["Readcode repository", "Privacy", "Contact"] },
+    { title: "product", links: [
+      { label: "workspace demo", href: "#demo" },
+      { label: "features", href: "#features" },
+      { label: "pricing", href: "#pricing" },
+    ] },
+    { title: "learn", links: [
+      { label: "get started", href: "#getting-started" },
+      { label: "model options", href: "#models" },
+      { label: "questions", href: "#faq" },
+    ] },
+    { title: "guides", links: [
+      { label: "run locally", href: `${hero.secondary.href}#run-locally` },
+      { label: "Docker setup", href: `${hero.secondary.href}#postgres-and-redis` },
+      { label: "API reference", href: `${hero.secondary.href}#api-surface` },
+    ] },
+    { title: "readcode", links: [
+      { label: "GitHub", href: hero.secondary.href },
+      { label: "report an issue", href: `${hero.secondary.href}/issues` },
+      { label: "contact", href: `mailto:${footerEmail}` },
+    ] },
   ],
 };

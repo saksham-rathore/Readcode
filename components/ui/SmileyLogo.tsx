@@ -1,108 +1,32 @@
-import React from "react";
+﻿import { useId, type SVGProps } from "react";
 
-export interface SmileyLogoProps extends React.SVGProps<SVGSVGElement> {
+export interface SmileyLogoProps extends SVGProps<SVGSVGElement> {
   width?: number | string;
   height?: number | string;
-  className?: string;
 }
 
-export function SmileyLogo({
-  width = 28,
-  height = 28,
-  className,
-  ...props
-}: SmileyLogoProps) {
-  return (
-    <svg
-      width={width}
-      height={height}
-      viewBox="0 0 226 226"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-      {...props}
-    >
-      <defs>
-        <filter
-          id="filter0_i_smiley_logo"
-          x="16.251"
-          y="16.2512"
-          width="193.498"
-          height="193.498"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="BackgroundImageFix"
-            result="shape"
-          />
-          <feColorMatrix
-            in="SourceAlpha"
-            type="matrix"
-            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-            result="hardAlpha"
-          />
-          <feOffset />
-          <feGaussianBlur stdDeviation="15.65" />
-          <feComposite
-            in2="hardAlpha"
-            operator="arithmetic"
-            k2="-1"
-            k3="1"
-          />
-          <feColorMatrix
-            type="matrix"
-            values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.25 0"
-          />
-          <feBlend
-            mode="normal"
-            in2="shape"
-            result="effect1_innerShadow_smiley_logo"
-          />
-        </filter>
-        <radialGradient
-          id="paint0_radial_smiley_logo"
-          cx="0"
-          cy="0"
-          r="1"
-          gradientUnits="userSpaceOnUse"
-          gradientTransform="translate(113 113) rotate(90) scale(227)"
-        >
-          <stop stopColor="#28A9FF" />
-          <stop offset="1" stopColor="white" stopOpacity="0" />
-        </radialGradient>
-      </defs>
+export function SmileyLogo({ width = 28, height = 28, ...props }: SmileyLogoProps) {
+  const tileId = useId();
 
-      <g filter="url(#filter0_i_smiley_logo)">
-        <path
-          d="M91.4595 26.5015C102.568 12.8345 123.432 12.8345 134.54 26.5015C140.447 33.7678 149.618 37.5668 158.932 36.6049C176.451 34.7958 191.204 49.5488 189.395 67.0678C188.433 76.382 192.232 85.5535 199.498 91.4595C213.165 102.568 213.165 123.432 199.498 134.54C192.232 140.447 188.433 149.618 189.395 158.932C191.204 176.451 176.451 191.204 158.932 189.395C149.618 188.433 140.447 192.232 134.54 199.498C123.432 213.165 102.568 213.165 91.4595 199.498C85.5535 192.232 76.382 188.433 67.0678 189.395C49.5488 191.204 34.7958 176.451 36.6049 158.932C37.5668 149.618 33.7678 140.447 26.5015 134.54C12.8345 123.432 12.8345 102.568 26.5015 91.4595C33.7678 85.5535 37.5668 76.382 36.6049 67.0678C34.7958 49.5488 49.5488 34.7958 67.0678 36.6049C76.382 37.5668 85.5535 33.7678 91.4595 26.5015Z"
-          fill="#50B9FF"
-        />
-        <path
-          d="M91.4595 26.5015C102.568 12.8345 123.432 12.8345 134.54 26.5015C140.447 33.7678 149.618 37.5668 158.932 36.6049C176.451 34.7958 191.204 49.5488 189.395 67.0678C188.433 76.382 192.232 85.5535 199.498 91.4595C213.165 102.568 213.165 123.432 199.498 134.54C192.232 140.447 188.433 149.618 189.395 158.932C191.204 176.451 176.451 191.204 158.932 189.395C149.618 188.433 140.447 192.232 134.54 199.498C123.432 213.165 102.568 213.165 91.4595 199.498C85.5535 192.232 76.382 188.433 67.0678 189.395C49.5488 191.204 34.7958 176.451 36.6049 158.932C37.5668 149.618 33.7678 140.447 26.5015 134.54C12.8345 123.432 12.8345 102.568 26.5015 91.4595C33.7678 85.5535 37.5668 76.382 36.6049 67.0678C34.7958 49.5488 49.5488 34.7958 67.0678 36.6049C76.382 37.5668 85.5535 33.7678 91.4595 26.5015Z"
-          fill="url(#paint0_radial_smiley_logo)"
-        />
+  return (
+    <svg width={width} height={height} viewBox="0 0 32 32" aria-hidden="true" {...props}>
+      <defs>
+        <clipPath id={tileId}>
+          <rect width="32" height="32" rx="8" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${tileId})`} shapeRendering="crispEdges">
+        <path fill="#23c5f3" d="M0 0h32v32H0z" />
+        <path fill="#08afe8" d="M0 0h32v4H0z" />
+        <path fill="#9ce5fb" d="M0 14h6v2h5v2h13v-2h8v7H0z" />
+        <path fill="#d3c3f9" d="M0 21h5v-1h6v2h15v-2h6v7H0z" />
+        <path fill="#c6f557" d="M0 24h4v-1h6v2h11v-2h6v-1h5v10H0z" />
+        <path fill="#ecffae" d="M4 27h2v1H4zM26 25h2v1h-2zM24 29h2v1h-2z" />
+        <path fill="#fff" d="M7 7h2v2h2v2h10V9h2V7h2v9h2v7h-2v2h-3v2H10v-2H7v-2H5v-7h2z" />
+        <path fill="#c7edfb" d="M8 9h1v2H8zM23 9h1v2h-1zM10 26h12v1H10z" />
+        <path fill="#172835" d="M10 16h3v5h-3zM19 16h3v5h-3z" />
+        <path fill="#18aee0" d="M15 22h2v1h-2z" />
       </g>
-      <circle
-        cx="80.5"
-        cy="112.5"
-        r="7.5"
-        fill="#00558E"
-      />
-      <path
-        d="M 123 112.5 C 123 116.642 126.358 120 130.5 120 C 134.642 120 138 116.642 138 112.5 C 138 108.358 134.589 104.915 130.447 104.915 C 126.305 104.915 123 108.358 123 112.5 Z"
-        fill="#00558E"
-      />
-      <path
-        d="M90 127C97.2727 139 112.727 139 120 127"
-        stroke="#057BC9"
-        strokeWidth="8"
-        strokeLinecap="round"
-      />
     </svg>
   );
 }

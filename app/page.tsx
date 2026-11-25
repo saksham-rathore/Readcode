@@ -2,54 +2,91 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Monitor, Notebook } from "@phosphor-icons/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./landing.css";
-import CloudSky from "@/components/pixel-perfect/cloud-sky";
+import "./workspace-demo.css";
+import WorkspaceDemo from "@/components/preview/WorkspaceDemo";
+import GettingStarted from "@/components/preview/GettingStarted";
 import { GithubStar, SmileyLogo } from "@/components/ui";
-import { brand, nav, navCta, hero, features, models, steps, plans, faq, footer } from "./content";
+import { AgentAvatar, type AgentShape } from "@/components/ui/AgentAvatar";
+import { brand, nav, navCta, hero, faq, footer } from "./content";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const io = new IntersectionObserver(
-      (es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add("in"), io.unobserve(e.target))),
-      { threshold: 0.12 }
-    );
-    root.querySelectorAll(".rv").forEach((n) => io.observe(n));
-    return () => io.disconnect();
+    gsap.registerPlugin(ScrollTrigger);
+    const context = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>(".rv").forEach((element) => {
+        gsap.fromTo(element, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: .75, ease: "power2.out", scrollTrigger: { trigger: element, start: "top 90%", once: true } });
+      });
+    }, root);
+    return () => context.revert();
   }, []);
   return ref;
 }
 
-function AppWindow() {
+const modelTape = ["OpenAI", "Claude", "Gemini", "Grok", "DeepSeek", "Qwen", "OpenCode", "Your API key"];
+const modelSymbols = ["✳", "✺", "✦", "◉", "◈", "✣", "◇", "⌘"];
+
+function ModelRow() {
   return (
-    <div className="hero-scene" id="demo">
-      <CloudSky className="hero-scene-bg" />
-      <div className="win" aria-label="Readcode coding workspace preview">
-        <div className="win-bar"><span className="traffic"><i /><i /><i /></span><span className="window-product">readcode</span><span className="window-caption">a preview of your coding workspace.</span></div>
-        <div className="win-body">
-          <aside className="preview-contacts">
-            <div className="contact-tools"><span>⌕</span><span>+</span></div>
-            <div className="contact selected"><span className="contact-avatar gray">R</span><div><b>Readcode</b><small>Plan ready to review</small></div></div>
-            <div className="contact"><span className="contact-avatar purple">P</span><div><b>Patch</b><small>Found the login issue</small></div></div>
-            <div className="contact"><span className="contact-avatar pink">S</span><div><b>Scout</b><small>Mapped the API flow</small></div></div>
-            <div className="contact"><span className="contact-avatar blue">B</span><div><b>Builder</b><small>Settings screen drafted</small></div></div>
-          </aside>
-          <div className="preview-chat">
-            <div className="preview-chat-title"><span className="contact-avatar gray">R</span> Readcode</div>
-            <div className="preview-date">Today, 10:42</div>
-            <div className="preview-prompt">Make the first-run dashboard useful for a new project.</div>
-            <div className="preview-reply">I found three small changes that would make the first step clearer.</div>
-            <div className="preview-plan"><b>First-run dashboard plan</b><div><span>01</span> Welcome users to their project <em>app/page.tsx</em></div><div><span>02</span> Offer a useful first prompt <em>components/</em></div><div><span>03</span> Show the next step clearly <em>styles/</em></div></div>
-            <div className="preview-reply">Want me to draft the first screen? You can review every suggestion.</div>
-            <div className="preview-composer">Message Readcode <span>+</span></div>
-          </div>
-          <div className="preview-details"><SmileyLogo width={58} height={58} /><b>Readcode</b><div className="detail-tabs"><span>Details</span><span>Project</span><span>Settings</span></div><small>Project context</small><div className="detail-card"><b>readcode-app</b><span>Python API · Next.js frontend</span><span>4 conversations</span></div><small>Current task</small><div className="detail-card"><b>Onboarding flow</b><span>Plan ready for review</span></div></div>
-        </div>
-      </div>
+    <div className="wrap model-row">
+      <span>bring your model</span>
+      <ul aria-label="Model options">
+        {modelTape.slice(0, -2).map((name, index) => (
+          <li key={name}><span className={`model-symbol model-symbol-${index}`} aria-hidden="true">{modelSymbols[index]}</span>{name}</li>
+        ))}
+        <li><a href="#models">or use your own API key <span aria-hidden="true">↗</span></a></li>
+      </ul>
     </div>
   );
+}
+
+function ModelTape() {
+  const track = useRef<HTMLDivElement>(null);
+  const tween = useRef<gsap.core.Tween | null>(null);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (!track.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const animation = gsap.to(track.current, { xPercent: -50, duration: 28, ease: "none", repeat: -1 });
+    tween.current = animation;
+    return () => { animation.kill(); tween.current = null; };
+  }, []);
+  function toggle() { if (tween.current) { if (paused) tween.current.resume(); else tween.current.pause(); } setPaused(!paused); }
+  return <section className="model-showcase" id="models">
+    <div className="wrap"><h2 className="rv">bring the AI<br/>you already use.</h2></div>
+    <div className="model-tape" aria-label="Models and endpoints"><div className="model-tape-track" ref={track}>{[0, 1].map((copy) => <div className="model-tape-set" key={copy} aria-hidden={copy === 1}>{modelTape.map((name, i) => <span className="model-tape-item" key={name}><i>{modelSymbols[i]}</i>{name}</span>)}</div>)}</div></div>
+    <div className="model-copy wrap"><p>Use the model endpoint configured for your Readcode project.</p><p>Keep each answer connected to its conversation and project.</p><div><p>Bring your own API key through the backend configuration.</p><button type="button" onClick={toggle}>{paused ? "play the tape" : "pause the tape"}</button></div></div>
+  </section>;
+}
+
+function FreeShowcase() {
+  return <section className="free-showcase wrap" id="free" aria-labelledby="free-title"><p className="free-intro rv">for personal use, readcode is</p><h2 className="free-word rv" id="free-title"><Image src="/landing/free-pixel-art.png" alt="free" width={1022} height={373} /></h2><div className="free-points rv"><span>the current prototype is $0</span><span>no trial timer</span><span>configure your own model endpoint</span></div><p className="free-note rv">Explore the browser preview while the desktop app is in development.</p></section>;
+}
+
+function SleepingCat() {
+  return <div className="pricing-cat" aria-hidden="true"><span className="cat-z cat-z-one">z</span><span className="cat-z cat-z-two">z</span><svg viewBox="0 0 128 70" shapeRendering="crispEdges"><g className="cat-tail"><path d="M14 48H4V38H0V29H8V38H18Z" fill="#ef8e36"/><path d="M4 41H11V48H4Z" fill="#ffc17c"/></g><path d="M20 35H30V24H42V18H53V25H78V19H91V28H102V37H112V53H105V59H37V55H24V48H18Z" fill="#f99a43"/><path d="M31 31H42V26H53V31H79V26H89V34H99V42H109V51H97V55H39V49H27V41H22V35H31Z" fill="#ffc17c"/><path d="M44 27H54V36H44ZM69 27H78V35H69ZM88 35H97V44H88Z" fill="#ea8334"/><path d="M35 47H48V51H35ZM76 47H94V51H76Z" fill="#ee8b38"/><path d="M43 42H54V45H43ZM78 42H89V45H78Z" fill="#85543e"/><path d="M62 45H67V48H62Z" fill="#d57669"/><path d="M55 56H68V60H55ZM82 55H95V59H82Z" fill="#fff0d5"/></svg></div>;
+}
+
+const priceFeatures = [
+  ["Project workspaces", "AI conversation through your configured provider", "No trial timer"],
+  ["Everything in free", "Planned always-on cloud workspace", "Planned scheduled routines", "Planned remote access"],
+  ["Everything in plus", "Planned larger workloads", "Planned priority capacity", "Planned work license"],
+];
+
+function PricingShowcase() {
+  const [yearly, setYearly] = useState(false);
+  const tiers = [
+    { name: "free", desc: "Explore Readcode on your own projects.", price: "$0", note: "forever. no card needed.", action: "explore the preview", href: "#demo" },
+    { name: "plus", desc: "A planned home for work that keeps going.", price: yearly ? "$17" : "$20", note: "a month, concept price", action: "see the roadmap", href: "#faq" },
+    { name: "pro", desc: "Planned capacity for heavier work.", price: yearly ? "$42" : "$50", note: "a month, concept price", action: "see the roadmap", href: "#faq" },
+  ];
+  return <section className="pricing-showcase wrap" id="pricing" aria-labelledby="pricing-title"><div className="pricing-heading"><h2 className="rv" id="pricing-title">start free. grow with<br/>your projects.</h2><div className="pricing-switch" aria-label="Billing example"><button className={!yearly ? "active" : ""} aria-pressed={!yearly} onClick={() => setYearly(false)}>monthly</button><button className={yearly ? "active" : ""} aria-pressed={yearly} onClick={() => setYearly(true)}>yearly <span>2 months free</span></button></div></div><div className="pricing-grid">{tiers.map((tier, index) => <article className="pricing-card rv" key={tier.name}>{index === 0 && <SleepingCat/>}<div className={`pricing-landscape pricing-landscape-${index}`}/><div className="pricing-card-content"><h3>{tier.name}</h3><p className="pricing-description">{tier.desc}</p><div className="pricing-amount"><strong>{tier.price}</strong><span>{tier.note}</span></div><a className="pricing-action" href={tier.href}>{tier.action}</a><ul>{priceFeatures[index].map(feature => <li key={feature}><span>✓</span>{feature}</li>)}</ul></div></article>)}</div><p className="pricing-disclaimer">Plus and Pro prices show a design concept. Paid plans are not available yet.</p></section>;
 }
 
 const botJobs = [
@@ -60,22 +97,31 @@ const botJobs = [
   { icon: "📚", tone: "green", title: "documentation writer", body: "Keeps setup notes and project docs clear as your code and decisions evolve." },
   { icon: "✨", tone: "gold", title: "task planner", body: "Breaks a feature into small steps and keeps the important context close at hand." },
 ];
+const jobShapes: AgentShape[] = ["ghost", "flower", "star", "clover", "hexagon", "square"];
+const placeShapes: Record<string, AgentShape> = { Scout: "ghost", Builder: "star", Reviewer: "flower", Readcode: "clover", You: "square", Planner: "hexagon" };
 
 function BotJobsShowcase() {
   return (
     <section className="bot-jobs wrap" aria-labelledby="bot-jobs-title">
       <p className="bot-jobs-intro rv">
-        Give every assistant a clear role. It learns your project, keeps the context, and helps you move from question to working code.
+        Give a bot{" "}
+        <span className="bot-intro-roster" aria-hidden="true">
+          <AgentAvatar type="ghost" size={36} seed={0.2} />
+          <AgentAvatar type="mech" size={36} seed={0.5} />
+          <AgentAvatar type="clover" size={36} seed={0.8} />
+        </span>{" "}
+        a job. Ask about your project <span className="bot-intro-icon bot-intro-screen" aria-hidden="true"><Monitor weight="duotone" /></span>{" "}
+        and keep notes <span className="bot-intro-icon bot-intro-notes" aria-hidden="true"><Notebook weight="duotone" /></span>{" "}
+        close to the code they belong to.
       </p>
       <div className="bot-jobs-scene rv">
         <article className="bot-jobs-card">
-          <span className="bot-jobs-kicker">YOUR PROJECT, WITH A LITTLE HELP</span>
           <h2 id="bot-jobs-title">give each bot a job.</h2>
           <p className="bot-jobs-subtitle">One assistant, one useful role. Start with a question and build from there.</p>
           <div className="bot-jobs-grid">
-            {botJobs.map((job) => (
+            {botJobs.map((job, index) => (
               <div className="bot-job" key={job.title}>
-                <span className={`bot-job-icon ${job.tone}`} aria-hidden="true">{job.icon}</span>
+                <span className="bot-job-avatar" aria-hidden="true"><AgentAvatar type={jobShapes[index]} size={36} seed={index / botJobs.length} /></span>
                 <div><h3>{job.title}</h3><p>{job.body}</p></div>
               </div>
             ))}
@@ -146,16 +192,85 @@ function ManyBotsShowcase() {
   );
 }
 
+const workspacePlaces = [
+  {
+    title: "in your projects",
+    body: "Keep each project, question, and next step together in one clear workspace.",
+    href: "#demo",
+    action: "explore the workspace",
+    host: "Project workspace",
+    detail: "Your work stays in context",
+    status: "Ready",
+    tone: "blue",
+    updates: [
+      ["Scout", "Mapped the codebase", "9:12"],
+      ["Builder", "Dashboard plan ready", "9:08"],
+      ["Reviewer", "Checked the changes", "8:45"],
+    ],
+  },
+  {
+    title: "in every conversation",
+    body: "Ask a coding question and keep the answer close to the work it belongs to.",
+    href: "#models",
+    action: "see how it works",
+    host: "Project conversation",
+    detail: "Pick up where you left off",
+    status: "Active",
+    tone: "green",
+    updates: [
+      ["Readcode", "Found the entry point", "9:14"],
+      ["You", "What handles checkout?", "9:11"],
+      ["Readcode", "Explained the flow", "9:06"],
+    ],
+  },
+  {
+    title: "alongside your code",
+    body: "Review a clear plan before the next change, with the relevant files in view.",
+    href: "#faq",
+    action: "read the details",
+    host: "Review space",
+    detail: "You make the next move",
+    status: "Preview",
+    tone: "orange",
+    updates: [
+      ["Planner", "Outlined three steps", "9:17"],
+      ["Scout", "Located the files", "9:12"],
+      ["Readcode", "Answer ready to review", "9:05"],
+    ],
+  },
+];
+
+function WorkspacePlaces() {
+  return <section className="workspace-places wrap" id="features" aria-labelledby="workspace-places-title">
+    <h2 className="rv" id="workspace-places-title">where your work lives.</h2>
+    <div className="places-grid">
+      {workspacePlaces.map((place, index) => <article className={`place-card rv place-${index}`} key={place.title}>
+        <div className="place-visual" aria-hidden="true">
+          <div className="place-activity">
+            {place.updates.map(([name, note, time], row) => <div className="place-update" key={name + note}>
+              <AgentAvatar type={placeShapes[name]} size={32} seed={(index * 3 + row) / 9}/>
+              <span className="place-update-copy"><b>{name}</b><small>{note}</small></span>
+              <time>{time}</time>
+            </div>)}
+            <div className="place-host"><span className="place-host-icon">▣</span><span><b>{place.host}</b><small>{place.detail}</small></span><em className={`place-state ${place.tone}`}>{place.status}</em></div>
+          </div>
+        </div>
+        <h3>{place.title}</h3><p>{place.body}</p><a href={place.href}>{place.action} <span aria-hidden="true">→</span></a>
+      </article>)}
+    </div>
+  </section>;
+}
+
 export default function Landing() {
   const ref = useReveal();
   const [platformMenuOpen, setPlatformMenuOpen] = useState(false);
   return (
     <div className="lp" ref={ref}>
       <header className="bar">
-        <a className="logo" href="/"><SmileyLogo width={38} height={38} />{brand.name}</a>
+        <Link className="logo" href="/"><SmileyLogo width={38} height={38} />{brand.name}</Link>
         <nav aria-label="main">
           {nav.map((n) => <a key={n.href} href={n.href}>{n.label}</a>)}
-          <a className="pill dark" href={navCta.href}>{navCta.label}</a>
+          <Link className="pill dark" href={navCta.href}>{navCta.label}</Link>
         </nav>
       </header>
 
@@ -174,72 +289,49 @@ export default function Landing() {
             </div>
           </div>
           <p className="hint">{hero.hint}</p>
-          <AppWindow />
+          <WorkspaceDemo />
         </section>
 
+        <ModelRow />
         <BotJobsShowcase />
         <ManyBotsShowcase />
 
-        <section className="wrap sec" id="features">
-          <h2 className="rv">Built around your projects and questions.</h2>
-          <div className="grid">
-            {features.map((f, i) => (
-              <article key={f.title} className={`card rv t${i % 4}`}>
-                <h3>{f.title}</h3>
-                <p>{f.body}</p>
-              </article>
-            ))}
-          </div>
+        <WorkspacePlaces />
+
+        <ModelTape />
+        <FreeShowcase />
+        <PricingShowcase />
+
+        <GettingStarted />
+
+
+        <section className="wrap faq-showcase" id="faq" aria-labelledby="faq-title">
+          <div className="faq-intro rv"><h2 id="faq-title">questions.</h2><p>Stuck on something else? Explore the <a href="https://github.com/saksham-rathore/Readcode" target="_blank" rel="noreferrer">project repository</a>.</p><div className="faq-mech"><AgentAvatar type="mech" size={115} color="#8954ee" seed={0.63}/></div></div>
+          <div className="faq-list">{faq.map((f) => <details key={f.q} className="rv"><summary>{f.q}<span className="faq-plus" aria-hidden="true">+</span></summary><p>{f.a}</p></details>)}</div>
         </section>
 
-        <section className="wrap sec" id="models">
-          <h2 className="rv">Use the model endpoint configured for your app.</h2>
-          <ul className="chips rv">{models.map((m) => <li key={m}>{m}</li>)}</ul>
-        </section>
-
-        <section className="wrap sec">
-          <h2 className="rv">From project to useful answer in three steps.</h2>
-          <ol className="steps">
-            {steps.map((s, i) => (
-              <li key={s.title} className="rv"><span>{i + 1}</span><h3>{s.title}</h3><p>{s.body}</p></li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="wrap sec" id="pricing">
-          <h2 className="rv">Prototype today. Product plans later.</h2>
-          <div className="plans">
-            {plans.map((p) => (
-              <article key={p.name} className={`plan rv${p.featured ? " feat" : ""}`}>
-                <h3>{p.name}</h3>
-                <p className="price">{p.price} <small>{p.note}</small></p>
-                <ul>{p.items.map((it) => <li key={it}>{it}</li>)}</ul>
-                <a className={`pill${p.featured ? " dark" : ""}`} href="#download">{p.cta}</a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="wrap sec faq" id="faq">
-          <h2 className="rv">Questions.</h2>
-          {faq.map((f) => (
-            <details key={f.q} className="rv"><summary>{f.q}</summary><p>{f.a}</p></details>
-          ))}
-        </section>
-
-        <section className="end" id="download">
-          <div className="wrap">
-            <h2 className="rv">Explore the readcode prototype.</h2>
-            <a className="pill dark" href="#features">Explore {brand.name}</a>
-          </div>
-        </section>
       </main>
 
-      <footer className="foot wrap">
-        <div><b>{brand.name}</b><p>{brand.tagline}</p></div>
-        {footer.columns.map((c) => (
-          <div key={c.title}><b>{c.title}</b>{c.links.map((l) => <a key={l} href="#">{l}</a>)}</div>
-        ))}
+      <footer className="readcode-footer">
+        <div className="footer-panel">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <Link href="/" className="footer-wordmark"><SmileyLogo width={30} height={30} />{brand.name}</Link>
+              <p>{brand.tagline}.</p>
+              <a href={`mailto:${footer.email}`}>{footer.email}</a>
+            </div>
+            <nav className="footer-nav" aria-label="Footer">
+              {footer.columns.map(({ title, links }) => (
+                <div key={title}>
+                  <h2>{title}</h2>
+                  <ul>{links.map(({ href, label }) => <li key={label}><a href={href}>{label}</a></li>)}</ul>
+                </div>
+              ))}
+            </nav>
+          </div>
+          <p className="footer-note">The bots, conversations, and activity shown on this page are examples from the Readcode prototype.</p>
+          <div className="footer-oversized" aria-hidden="true">{brand.name}</div>
+        </div>
       </footer>
     </div>
   );
