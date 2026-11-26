@@ -34,7 +34,7 @@
 
 .account-feature-card h2, .account-content h1 {
   margin: 0;
-  font-weight: 600;
+  font-weight: 450;
   line-height: 1.06;
   letter-spacing: -.06em;
 }
@@ -52,7 +52,7 @@
   padding: 16px clamp(20px, 3.3vw, 56px) 12px;
 }
 .account-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.account-brand, .account-back { display: inline-flex; align-items: center; gap: 7px; color: inherit; text-decoration: none; font-weight: 600; }
+.account-brand, .account-back { display: inline-flex; align-items: center; gap: 7px; color: inherit; text-decoration: none; font-weight: 450; }
 .account-back:hover, .account-switch a:hover, .account-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .account-content { width: min(100%, 400px); align-self: center; justify-self: center; padding: 48px 0; }
@@ -71,11 +71,11 @@
   border-radius: 100px;
   background: #f0f3f7;
   color: var(--account-ink);
-  font-weight: 550;
+  font-weight: 450;
   cursor: pointer;
 }
 .account-providers button:hover { background: #e6eef7; }
-.account-google { color: #2861d5; font-weight: 750; }
+.account-google { color: #2861d5; font-weight: 450; }
 .account-divider { margin: 20px 0; color: var(--account-muted); text-align: center; font-size: 13px; }
 .account-form label { font-size: 14px; color: var(--account-muted); }
 .account-form input { box-sizing: border-box; width: 100%; min-height: 48px; border: 1px solid #dce4ee; border-radius: 12px; padding: 10px 14px; color: var(--account-ink); background: #f7f9fc; }
@@ -84,7 +84,7 @@
 .account-page :where(a, button, input):focus-visible { outline: 2px solid #2266da; outline-offset: 3px; }
 .account-notice { margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; color: #19375f; background: #edf5ff; font-size: 13px; }
 .account-switch { margin: 24px 0 0; color: var(--account-muted); font-size: 14px; }
-.account-switch a, .account-footer a { color: var(--account-ink); font-weight: 650; }
+.account-switch a, .account-footer a { color: var(--account-ink); font-weight: 450; }
 .account-footer { color: var(--account-muted); text-align: center; font-size: 12px; }
 
 @media (max-width: 760px) {
@@ -93,3 +93,18 @@
   .account-main { padding: 20px 22px 18px; }
   .account-content { padding: 40px 0; }
 }
+
+.account-feature-card h2, .account-content h1 {
+  letter-spacing: -.035em;
+  line-height: 1.16;
+  font-weight: 450;
+}
+.account-page { line-height: 1.65; }
+.account-content { max-width: 420px; }
+.account-intro { margin-bottom: 30px; font-size: 16px; }
+.account-providers, .account-form { gap: 12px; }
+.account-form input { min-height: 48px; font-size: 16px; }
+.account-page button { min-height: 48px; font-weight: 450; }
+.account-feature-card li { align-items: flex-start; }
+.account-feature-card p { line-height: 1.65; }
+.account-footer { line-height: 1.65; }

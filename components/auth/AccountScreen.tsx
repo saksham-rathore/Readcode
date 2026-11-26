@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import gsap from "gsap";
 import Image from "next/image";
 import Link from "next/link";
 import { AgentAvatar, type AgentShape } from "@/components/ui/AgentAvatar";
@@ -16,6 +17,22 @@ const highlights: { shape: AgentShape; title: string; text: string }[] = [
 export default function AccountScreen({ mode }: { mode: "sign-in" | "sign-up" }) {
   const signingUp = mode === "sign-up";
   const [notice, setNotice] = useState("");
+  const root = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const motion = gsap.matchMedia();
+    motion.add("(prefers-reduced-motion: no-preference)", () => {
+      gsap.from(".account-feature-card, .account-content > *", {
+        opacity: 0,
+        y: 14,
+        duration: 0.6,
+        stagger: 0.05,
+        ease: "power3.out",
+        clearProps: "opacity,transform",
+      });
+    }, root);
+    return () => motion.revert();
+  }, []);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,7 +40,7 @@ export default function AccountScreen({ mode }: { mode: "sign-in" | "sign-up" })
   }
 
   return (
-    <main className="account-page">
+    <main className="account-page" ref={root}>
       <aside className="account-landscape" aria-label="About Readcode">
         <div className="account-feature-card">
           <h2>your AI coding workspace.</h2>

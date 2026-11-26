@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AgentAvatar } from "@/components/ui/AgentAvatar";
 
 const shapes = ["clover", "mech", "ghost", "flower", "star", "hexagon"] as const;
+const deviceAgents = ["Builder", "Scout", "Reviewer"];
 
 function Device({ kind }: { kind: "laptop" | "desktop" }) {
   const laptop = kind === "laptop";
@@ -9,17 +10,25 @@ function Device({ kind }: { kind: "laptop" | "desktop" }) {
     <div className={`setup-device setup-${kind}`}>
       <div className="setup-screen">
         <div className="setup-screen-rail">
-          <b>readcode</b>
-          <span>Builder</span><span>Scout</span><span>Reviewer</span>
+          {deviceAgents.map((name) => (
+            <span key={name}><i className="setup-agent-mark" />{name}</span>
+          ))}
         </div>
         <div className="setup-screen-chat">
-          <b>Builder</b>
+          <b className="setup-chat-title">Builder</b>
           <span className="setup-chat-prompt">Where should I start?</span>
-          <span className="setup-chat-reply">Start in app/page.tsx. I’ll show you how it fits together.</span>
+          <div className="setup-chat-response">
+            <i className="setup-agent-mark" />
+            <span className="setup-chat-reply">Start with app/page.tsx. I’ll guide you from there.</span>
+          </div>
           <span className="setup-chat-input">Message Builder</span>
         </div>
       </div>
-      <div className="setup-device-base" />
+      <div className="setup-device-base">
+        {laptop && <div className="setup-keyboard">
+          {Array.from({ length: 20 }, (_, key) => <span key={key} />)}
+        </div>}
+      </div>
       <div className="setup-platform">
         {(laptop ? ["macos"] : ["windows", "linux"]).map(os => (
           <Image key={os} src={`/landing/${os}.svg`} width={12} height={12} alt="" />

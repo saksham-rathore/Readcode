@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+  style: "normal",
+});
 
 export const metadata: Metadata = {
   title: "readcode — Your AI coding workspace",
@@ -18,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`h-full antialiased ${geistMono.variable}`}>
+    <html lang="en" className={`h-full antialiased ${geist.variable}`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
