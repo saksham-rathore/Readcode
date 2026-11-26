@@ -21,27 +21,35 @@ function useReveal() {
     if (!root) return;
     gsap.registerPlugin(ScrollTrigger);
     const motion = gsap.matchMedia();
-    motion.add("(prefers-reduced-motion: no-preference)", () => {
-      gsap.utils.toArray<HTMLElement>(".rv").forEach((element) => {
-        gsap.from(element, {
-          opacity: 0.55,
-          y: 16,
-          duration: 0.65,
-          ease: "power3.out",
-          immediateRender: false,
-          clearProps: "opacity,transform",
-          scrollTrigger: { trigger: element, start: "top bottom", once: true },
+    motion.add(
+      "(prefers-reduced-motion: no-preference)",
+      () => {
+        gsap.utils.toArray<HTMLElement>(".rv").forEach((element) => {
+          gsap.from(element, {
+            opacity: 0.55,
+            y: 16,
+            duration: 0.65,
+            ease: "power3.out",
+            immediateRender: false,
+            clearProps: "opacity,transform",
+            scrollTrigger: {
+              trigger: element,
+              start: "top bottom",
+              once: true,
+            },
+          });
         });
-      });
-      gsap.from(".hero .availability, .hero h1, .hero .sub, .hero .actions", {
-        y: 16,
-        opacity: 0,
-        duration: 0.7,
-        stagger: 0.09,
-        ease: "power3.out",
-        clearProps: "opacity,transform",
-      });
-    }, root);
+        gsap.from(".hero .availability, .hero h1, .hero .sub, .hero .actions", {
+          y: 16,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.09,
+          ease: "power3.out",
+          clearProps: "opacity,transform",
+        });
+      },
+      root,
+    );
     return () => motion.revert();
   }, []);
   return ref;
@@ -100,7 +108,9 @@ function ModelTape() {
         repeat: -1,
         paused: pausedRef.current,
       });
-      return () => { tween.current = null; };
+      return () => {
+        tween.current = null;
+      };
     });
     return () => motion.revert();
   }, []);
@@ -394,6 +404,21 @@ function BotJobsShowcase() {
   );
 }
 
+const showcaseAvatars = {
+  nova: { type: "square", seed: 0.24 },
+  rivet: { type: "mech", color: "#ff9b4a", seed: 0.48 },
+  echo: { type: "star", seed: 0.72 },
+  juno: { type: "flower", seed: 0.96 },
+} satisfies Record<string, { type: AgentShape; color?: string; seed: number }>;
+
+function ShowcaseAvatar({ bot, size }: { bot: keyof typeof showcaseAvatars; size: number }) {
+  return (
+    <span className="showcase-avatar" aria-hidden="true">
+      <AgentAvatar {...showcaseAvatars[bot]} size={size} />
+    </span>
+  );
+}
+
 function ManyBotsShowcase() {
   return (
     <section className="many-bots wrap" aria-labelledby="many-bots-title">
@@ -403,16 +428,16 @@ function ManyBotsShowcase() {
           <br className="many-bots-break" /> bots at once.
         </h2>
         <p>
-          Start with one. Add another when the work grows. Each has its own
-          chat, job, and memory, and they can all work at the same time.
+          start with one. add another when the work grows. each has its own
+          chat, job and memory, and they all work at the same time.
         </p>
       </div>
       <div className="many-bots-grid">
         <article className="many-bot-card rv">
           <h3>each bot gets its own computer</h3>
           <p>
-            A browser and a desktop it can use to move through a task. Watch it
-            work, then take control when you like.
+            a browser and a desktop it signs in to and clicks through. watch it
+            live, and take the mouse back whenever you like.
           </p>
           <div
             className="bot-computer-preview"
@@ -420,7 +445,7 @@ function ManyBotsShowcase() {
             aria-label="Preview of a bot working in a browser"
           >
             <div className="bot-preview-top">
-              <span className="mini-bot blue">▣</span>
+              <ShowcaseAvatar bot="nova" size={22} />
               <b>nova’s computer</b>
               <span className="live-badge">
                 <i /> live
@@ -456,8 +481,8 @@ function ManyBotsShowcase() {
         <article className="many-bot-card rv">
           <h3>ask once and it becomes a routine</h3>
           <p>
-            Run a task on a schedule or when something happens. Your routines
-            keep working in the background.
+            it runs on a schedule, or the moment something happens. routines
+            run while you sleep.
           </p>
           <div
             className="routine-preview"
@@ -468,7 +493,7 @@ function ManyBotsShowcase() {
               summarise my inbox every weekday at 8.
             </div>
             <div className="routine-row">
-              <span className="mini-bot pink">▣</span>
+              <ShowcaseAvatar bot="juno" size={24} />
               <div>
                 <b>inbox summary</b>
                 <code>every weekday at 8:00</code>
@@ -476,7 +501,7 @@ function ManyBotsShowcase() {
               <span className="toggle-on" />
             </div>
             <div className="routine-row">
-              <span className="mini-bot blue">▣</span>
+              <ShowcaseAvatar bot="nova" size={24} />
               <div>
                 <b>competitor prices</b>
                 <code>every monday at 9:00</code>
@@ -484,7 +509,7 @@ function ManyBotsShowcase() {
               <span className="toggle-on" />
             </div>
             <div className="routine-row">
-              <span className="mini-bot orange">▣</span>
+              <ShowcaseAvatar bot="rivet" size={24} />
               <div>
                 <b>triage new issues</b>
                 <code>when a github issue opens</code>
@@ -497,8 +522,8 @@ function ManyBotsShowcase() {
         <article className="many-bot-card rv">
           <h3>every bot has a memory</h3>
           <p>
-            It keeps notes on your preferences and project. Every note is yours
-            to read and edit.
+            it keeps notes on how you like things and who&apos;s who. every note
+            is yours to read and edit.
           </p>
           <div
             className="memory-preview"
@@ -506,10 +531,9 @@ function ManyBotsShowcase() {
             aria-label="Preview of editable assistant memories"
           >
             <div className="memory-heading">
-              <span className="mini-bot blue">▣</span>
+              <ShowcaseAvatar bot="nova" size={22} />
               <b>nova’s notes on you</b>
               <code>3 so far</code>
-              <span className="edit-pill">↗ edit</span>
             </div>
             <div className="memory-list">
               <div>
@@ -520,6 +544,7 @@ function ManyBotsShowcase() {
                   <mark className="new-tag">new</mark> you said it in chat, just
                   now
                 </code>
+                <span className="edit-pill">✎ edit</span>
               </div>
               <div>
                 <p>dana signs off on anything over €500.</p>
@@ -536,8 +561,8 @@ function ManyBotsShowcase() {
         <article className="many-bot-card rv">
           <h3>put bots in a group</h3>
           <p>
-            Give several bots one thread and let them hand work to each other.
-            You step in when they need a yes.
+            several bots in one thread hand work to each other. you step in
+            when one of them needs a yes.
           </p>
           <div
             className="group-preview"
@@ -545,16 +570,16 @@ function ManyBotsShowcase() {
             aria-label="Preview of bots collaborating in a group chat"
           >
             <div className="group-heading">
-              <b># launch</b>
+              <b>#launch</b>
               <code>3 bots and you</code>
               <span>
-                <i className="mini-bot orange">▣</i>
-                <i className="mini-bot gold">♟</i>
-                <i className="mini-bot pink">▣</i>
+                <ShowcaseAvatar bot="rivet" size={18} />
+                <ShowcaseAvatar bot="echo" size={18} />
+                <ShowcaseAvatar bot="juno" size={18} />
               </span>
             </div>
             <div className="group-message">
-              <span className="mini-bot orange">▣</span>
+              <ShowcaseAvatar bot="rivet" size={24} />
               <div>
                 <b>
                   rivet <code>9:12</code>
@@ -563,11 +588,15 @@ function ManyBotsShowcase() {
                   fix is live{" "}
                   <mark className="mention gold-mention">@echo</mark> you’re up
                 </p>
-                <small>♟　♥ 2</small>
+                <small className="group-reactions">
+                  <ShowcaseAvatar bot="echo" size={12} />
+                  <ShowcaseAvatar bot="juno" size={12} />
+                  2
+                </small>
               </div>
             </div>
             <div className="group-message">
-              <span className="mini-bot gold">♟</span>
+              <ShowcaseAvatar bot="echo" size={24} />
               <div>
                 <b>
                   echo <code>9:13</code>
@@ -580,7 +609,7 @@ function ManyBotsShowcase() {
               </div>
             </div>
             <div className="group-message">
-              <span className="mini-bot pink">▣</span>
+              <ShowcaseAvatar bot="juno" size={24} />
               <div>
                 <b>
                   juno <code>9:14</code>
@@ -658,7 +687,7 @@ function WorkspacePlaces() {
       </h2>
       <div className="places-grid">
         {workspacePlaces.map((place, index) => (
-          <article className={`place-card rv place-${index}`} key={place.title}>
+          <article className="place-card rv" key={place.title}>
             <div className="place-visual" aria-hidden="true">
               <div className="place-activity">
                 {place.updates.map(([name, note, time], row) => (
