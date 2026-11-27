@@ -10,6 +10,7 @@ from redis.asyncio import Redis
 from sqlalchemy import desc, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .auth import ACCOUNT_OWNER_PREFIX, Bearer, Database, authenticated_session, router as auth_router
 from .config import get_settings
 from .database import Base, engine, get_session
 from .models import Conversation, Message, Project
@@ -33,18 +34,22 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="readcode API", version="0.1.0", lifespan=lifespan)
+app.include_router(auth_router)
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=True, allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["Authorization", "Content-Type", "X-User-ID"])
 if settings.app_env == "production":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.hosts)
 
 
-async def current_user(x_user_id: str | None = Header(default=None)) -> str:
-    # Local development identity only. Replace with validated OIDC/JWT claims before deployment.
-    if settings.app_env == "production":
-        raise HTTPException(status_code=401, detail="Configure an authentication provider before serving production traffic.")
-    if not x_user_id or len(x_user_id) > 128:
-        raise HTTPException(status_code=401, detail="Send a valid X-User-ID header.")
-    return x_user_id
+async def current_user(
+    credentials: Bearer, db: Database, authorization: str | None = Header(default=None),
+    x_user_id: str | None = Header(default=None),
+) -> str:
+    if authorization is not None:
+        auth = await authenticated_session(credentials, db)
+        return f"{ACCOUNT_OWNER_PREFIX}{auth.account_id}"
+    if settings.app_env == "development" and x_user_id and len(x_user_id) <= 128 and not x_user_id.startswith(ACCOUNT_OWNER_PREFIX):
+        return x_user_id
+    raise HTTPException(status_code=401, detail="Sign in to continue.")
 
 
 async def rate_limit(request: Request, user_id: str = Depends(current_user)) -> str:

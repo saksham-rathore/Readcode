@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Monitor, Notebook } from "@phosphor-icons/react";
+import { Key, Monitor, Notebook } from "@phosphor-icons/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./landing.css";
@@ -16,7 +16,7 @@ import { brand, nav, navCta, hero, faq, footer } from "./content";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = ref.current;
     if (!root) return;
     gsap.registerPlugin(ScrollTrigger);
@@ -24,14 +24,25 @@ function useReveal() {
     motion.add(
       "(prefers-reduced-motion: no-preference)",
       () => {
+        const revealDefaults = {
+          ease: "power3.out",
+          clearProps: "opacity,transform",
+        };
+
+        gsap
+          .timeline({ defaults: revealDefaults })
+          .from(
+            ".hero .availability, .hero h1, .hero .sub, .hero .actions, .hero .hint",
+            { y: 16, opacity: 0, duration: 0.62, stagger: 0.06 },
+          )
+          .from(".hero .rc-scene", { y: 44, opacity: 0, duration: 0.86 }, 0.16);
+
         gsap.utils.toArray<HTMLElement>(".rv").forEach((element) => {
           gsap.from(element, {
-            opacity: 0.55,
-            y: 16,
-            duration: 0.65,
-            ease: "power3.out",
-            immediateRender: false,
-            clearProps: "opacity,transform",
+            ...revealDefaults,
+            opacity: 0,
+            y: 28,
+            duration: 0.68,
             scrollTrigger: {
               trigger: element,
               start: "top bottom",
@@ -39,13 +50,18 @@ function useReveal() {
             },
           });
         });
-        gsap.from(".hero .availability, .hero h1, .hero .sub, .hero .actions", {
-          y: 16,
+
+        gsap.from(".bot-job", {
+          ...revealDefaults,
+          y: 12,
           opacity: 0,
-          duration: 0.7,
-          stagger: 0.09,
-          ease: "power3.out",
-          clearProps: "opacity,transform",
+          duration: 0.48,
+          stagger: 0.055,
+          scrollTrigger: {
+            trigger: ".bot-jobs-grid",
+            start: "top 96%",
+            once: true,
+          },
         });
       },
       root,
@@ -55,31 +71,30 @@ function useReveal() {
   return ref;
 }
 
-const modelTape = [
-  "OpenAI",
-  "Claude",
-  "Gemini",
-  "Grok",
-  "DeepSeek",
-  "Qwen",
-  "OpenCode",
-  "Your API key",
+const modelProviders = [
+  { name: "OpenAI", logo: "openai" },
+  { name: "Claude", logo: "claude-color" },
+  { name: "Gemini", logo: "gemini-color" },
+  { name: "Grok", logo: "grok" },
+  { name: "DeepSeek", logo: "deepseek-color" },
+  { name: "Qwen", logo: "qwen-color" },
 ];
-const modelSymbols = ["✳", "✺", "✦", "◉", "◈", "✣", "◇", "⌘"];
+const modelTape = [...modelProviders, { name: "OpenCode", logo: "opencode" }];
 
 function ModelRow() {
   return (
-    <div className="wrap model-row">
+    <div className="wrap model-row rv">
       <span>bring your model</span>
       <ul aria-label="Model options">
-        {modelTape.slice(0, -2).map((name, index) => (
+        {modelProviders.map(({ name, logo }) => (
           <li key={name}>
-            <span
-              className={`model-symbol model-symbol-${index}`}
-              aria-hidden="true"
-            >
-              {modelSymbols[index]}
-            </span>
+            <Image
+              className="model-logo"
+              src={`/landing/providers/${logo}.png`}
+              alt=""
+              width={18}
+              height={18}
+            />
             {name}
           </li>
         ))}
@@ -132,12 +147,24 @@ function ModelTape() {
         <div className="model-tape-track" ref={track}>
           {[0, 1, 2].map((copy) => (
             <div className="model-tape-set" key={copy} aria-hidden={copy !== 0}>
-              {modelTape.map((name, i) => (
+              {modelTape.map(({ name, logo }) => (
                 <span className="model-tape-item" key={name}>
-                  <i>{modelSymbols[i]}</i>
+                  <i aria-hidden="true">
+                    <Image
+                      className="model-logo"
+                      src={`/landing/providers/${logo}.png`}
+                      alt=""
+                      width={20}
+                      height={20}
+                    />
+                  </i>
                   {name}
                 </span>
               ))}
+              <span className="model-tape-item">
+                <i aria-hidden="true"><Key size={20} /></i>
+                Your API key
+              </span>
             </div>
           ))}
         </div>
@@ -209,6 +236,7 @@ const priceFeatures = [
 
 function PricingShowcase() {
   const [yearly, setYearly] = useState(false);
+  const paidTierNote = yearly ? "a month, billed yearly" : "a month, concept price";
   const tiers = [
     {
       name: "free",
@@ -221,16 +249,16 @@ function PricingShowcase() {
     {
       name: "plus",
       desc: "A planned home for work that keeps going.",
-      price: yearly ? "$17" : "$20",
-      note: "a month, concept price",
+      price: yearly ? "$7" : "$10",
+      note: paidTierNote,
       action: "see the roadmap",
       href: "#faq",
     },
     {
       name: "pro",
       desc: "Planned capacity for heavier work.",
-      price: yearly ? "$42" : "$50",
-      note: "a month, concept price",
+      price: yearly ? "$15" : "$20",
+      note: paidTierNote,
       action: "see the roadmap",
       href: "#faq",
     },
@@ -260,7 +288,7 @@ function PricingShowcase() {
             aria-pressed={yearly}
             onClick={() => setYearly(true)}
           >
-            yearly <span>2 months free</span>
+            yearly <span>up to 30% off</span>
           </button>
         </div>
       </div>
@@ -755,17 +783,17 @@ export default function Landing() {
           <div className="availability">
             <span className="availability-prefix">available on</span>
             <span className="os-label">
-              <Image src="/landing/macos.svg" alt="" width={14} height={14} />
+              <Image src="/landing/macos.svg" alt="" width={14} height={14} loading="eager" />
               macos
             </span>
             <span className="availability-dot" aria-hidden="true" />
             <span className="os-label">
-              <Image src="/landing/windows.svg" alt="" width={13} height={13} />
+              <Image src="/landing/windows.svg" alt="" width={13} height={13} loading="eager" />
               windows
             </span>
             <span className="availability-dot" aria-hidden="true" />
             <span className="os-label">
-              <Image src="/landing/linux.svg" alt="" width={14} height={14} />
+              <Image src="/landing/linux.svg" alt="" width={14} height={14} loading="eager" />
               linux
             </span>
           </div>
@@ -858,7 +886,7 @@ export default function Landing() {
               .
             </p>
             <div className="faq-mech" aria-hidden="true">
-              <AgentAvatar type="mech" size={115} color="#8954ee" seed={0.63} />
+              <AgentAvatar type="mech" size={115} seed={0.63} />
             </div>
           </div>
           <div className="faq-accordion rv">

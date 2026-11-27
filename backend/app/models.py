@@ -11,6 +11,20 @@ def now_utc() -> datetime:
     return datetime.now(timezone.utc)
 
 
+class Account(Base):
+    __tablename__ = "accounts"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    email: Mapped[str] = mapped_column(String(254), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
+
+
+class AccountSession(Base):
+    __tablename__ = "account_sessions"
+    token_digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    account_id: Mapped[str] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class Project(Base):
     __tablename__ = "projects"
     __table_args__ = (Index("ix_projects_owner_updated", "owner_id", "updated_at"),)

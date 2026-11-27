@@ -38,13 +38,16 @@ docker compose up --build
 ## API surface
 
 - `GET /health/live` and `GET /health/ready`
+- `POST /v1/auth/sign-up`, `POST /v1/auth/sign-in`, `GET /v1/auth/session`, and `POST /v1/auth/sign-out`
 - `GET /v1/projects` and `POST /v1/projects`
 - `POST /v1/chat` creates or continues a saved conversation
 
-Development requests use `X-User-ID` as a temporary local identity. Production mode rejects API requests until a real OIDC/JWT identity provider is wired in. The sample UI sends a local development identity; never use that identity scheme for deployed users.
+Open `/sign-up` to make an email and password account, or `/sign-in` to resume a session. The Next.js server calls FastAPI at `http://127.0.0.1:8000` by default and keeps the session token in an HTTP-only cookie. Set `READCODE_API_URL` on the Next.js server if FastAPI runs elsewhere. Set `READCODE_APP_ORIGIN` to the public HTTPS origin when running behind a reverse proxy.
+
+API clients can send the token from sign-in or sign-up as `Authorization: Bearer <token>`. Projects and conversations are scoped to the account. Development API clients can still use a temporary `X-User-ID` for existing local data. Use HTTPS and set `REDIS_URL` for production account-attempt limits.
 
 ## Scaling path
 
 The API is stateless between requests, uses async I/O, bounded Postgres connection pools, shared Redis counters, and externalized conversation state. Run multiple API replicas behind a load balancer and size each replica's DB pool against the Postgres connection budget. The current pool is 20 connections plus 10 overflow per process. Keep model calls outside database transactions and move repository cloning/indexing into a durable worker queue before enabling it for users. A 1,000-user target needs load testing against the selected model provider, database, and deployment limits; this starter does not claim a measured capacity yet.
 
-Before production, configure authentication and production secrets, run `alembic upgrade head` as a release step, add a durable job queue for indexing, and test capacity with realistic traffic. `APP_ENV=production` enables trusted-host checks and disables development identity.
+Before production, configure production secrets, run `alembic upgrade head` as a release step, add a durable job queue for indexing, and test capacity with realistic traffic. `APP_ENV=production` enables trusted-host checks and disables development identity.

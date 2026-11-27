@@ -137,10 +137,7 @@
 .lp .model-row ul { display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 0; margin: 0; list-style: none; }
 .lp .model-row li { display: inline-flex; align-items: center; gap: 6px; }
 .lp .model-row a:hover { text-decoration: underline; text-underline-offset: 4px; }
-.lp .model-symbol { font-size: 19px; line-height: 1; }
-.lp .model-symbol-1 { color: #c66248; }
-.lp .model-symbol-2, .lp .model-symbol-4 { color: #4162db; }
-.lp .model-symbol-5 { color: #7f56d8; }
+.lp .model-logo { display: block; flex: none; object-fit: contain; }
 .lp .bot-jobs { margin-top: clamp(92px, 10vw, 148px); }
 .lp .bot-jobs-intro {
   margin: 0 0 clamp(54px, 9vw, 138px);
@@ -172,11 +169,12 @@
 .lp .bot-jobs-card {
   width: min(100%, 1000px);
   padding: clamp(26px, 4vw, 48px);
+  border: 1px solid #17395014;
   border-radius: 28px;
   background: #fff;
-  box-shadow: 0 12px 34px #20729c15;
+  box-shadow: 0 2px 5px #1739500d, 0 12px 32px #17395014;
 }
-.lp .bot-jobs-card h2 { max-width: none; font-size: var(--section-title); line-height: 1.07; letter-spacing: -.055em; font-weight: 450; }
+.lp .bot-jobs-card h2 { max-width: none; font-size: var(--section-title); line-height: 1.07; letter-spacing: -.055em; font-weight: 400; }
 .lp .bot-jobs-card .bot-jobs-subtitle { margin-top: 14px; color: var(--ink2); font-size: var(--landing-body); line-height: 1.37; }
 .lp .bot-jobs-grid {
   display: grid;
@@ -189,7 +187,7 @@
 .lp .bot-job { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: start; gap: 18px; }
 .lp .bot-job-icon{width:21px;height:21px;display:grid;place-items:center;font-size:16px;line-height:1}
 .lp .bot-job-icon.blue{color:#3478ff}.lp .bot-job-icon.orange{color:#ff7b1a}.lp .bot-job-icon.purple{color:#8650e8}.lp .bot-job-icon.pink{color:#e83d98}.lp .bot-job-icon.green{color:#17a873}.lp .bot-job-icon.gold{color:#e5a400}
-.lp .bot-job h3 { margin: 1px 0 4px; font-size: var(--landing-card-title); line-height: 1.2; font-weight: 550; letter-spacing: -.02em; }
+.lp .bot-job h3 { margin: 1px 0 4px; font-size: var(--landing-card-title); line-height: 1.2; font-weight: 500; letter-spacing: -.02em; }
 .lp .bot-job p { color: var(--ink2); font-size: var(--landing-body); line-height: 1.4; }
 @media (max-width: 860px) {
   .lp .bot-jobs { margin-top: 82px; }
