@@ -31,6 +31,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://readcode:localdev@postgres:5432/readcode
       REDIS_URL: redis://redis:6379/0
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       ALLOWED_ORIGINS: http://localhost:3000
       TRUSTED_HOSTS: localhost,127.0.0.1,api
@@ -39,6 +40,10 @@ services:
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      WORKSPACE_DIR: /srv/data/workspaces
+      WORKSPACE_AGENTS:
+    volumes:
+      - workspace_data:/srv/data/workspaces
     ports:
       - "8000:8000"
     depends_on:
@@ -50,3 +55,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  workspace_data:

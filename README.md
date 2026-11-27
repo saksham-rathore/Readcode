@@ -42,6 +42,16 @@ docker compose up --build
 - `GET /v1/projects` and `POST /v1/projects`
 - `POST /v1/chat` creates or continues a saved conversation
 
+## Test the workspace
+
+1. Install Git on the API host. For a local Python setup, install `backend/requirements.txt` again after updating. For Compose, rebuild the API image.
+2. Start FastAPI and Next.js, then sign in and open `/workspace`. Add a project and create a thread. Set `OPENAI_API_KEY` in the backend environment to test assistant replies.
+3. To test Git, give the project a public `https://github.com/OWNER/REPOSITORY` URL. Clone it, open a thread worktree, and use the Files, Changes, and Checkpoints panels. Each worktree starts on its own `readcode/<thread-id>` branch. Restoring a checkpoint requires a clean worktree and leaves the restored content staged for review.
+
+`WORKSPACE_DIR` selects the server directory for clones and worktrees. Compose keeps it on a named volume. Use a versioned database migration with `alembic upgrade head` for databases managed by Alembic. A local development API also creates any new tables on startup.
+
+Threads retain their messages, task status, and assistant selection. To add another OpenAI-compatible assistant, set `WORKSPACE_AGENTS` to a JSON object mapping a short ID to `label`, `model`, `base_url`, and `api_key`. Keep that setting in the backend environment. Different threads can request replies at the same time.
+
 Open `/sign-up` to make an email and password account, or `/sign-in` to resume a session. The Next.js server calls FastAPI at `http://127.0.0.1:8000` by default and keeps the session token in an HTTP-only cookie. Set `READCODE_API_URL` on the Next.js server if FastAPI runs elsewhere. Set `READCODE_APP_ORIGIN` to the public HTTPS origin when running behind a reverse proxy.
 
 API clients can send the token from sign-in or sign-up as `Authorization: Bearer <token>`. Projects and conversations are scoped to the account. Development API clients can still use a temporary `X-User-ID` for existing local data. Use HTTPS and set `REDIS_URL` for production account-attempt limits.

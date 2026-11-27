@@ -135,8 +135,8 @@ export default function AccountScreen({ mode }: { mode: "sign-in" | "sign-up" })
               <span className="account-heading-icon"><CheckCircleIcon size={24} weight="duotone" aria-hidden="true" /></span>
               <h1 id="account-title">you’re signed in.</h1>
               <p className="account-intro">Signed in as <strong className="account-email">{account.email}</strong>.</p>
-              <Link href="/#demo" className="account-primary">
-                Explore the workspace preview <ArrowRightIcon size={17} aria-hidden="true" />
+              <Link href="/workspace" className="account-primary">
+                Open workspace <ArrowRightIcon size={17} aria-hidden="true" />
               </Link>
               <button type="button" className="account-sign-out" disabled={pending} onClick={() => void changeSession("DELETE")}>
                 {pending ? "Signing out…" : "Sign out"}

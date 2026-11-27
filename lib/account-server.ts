@@ -9,6 +9,11 @@ export function appOrigin(request: NextRequest) {
   return process.env.READCODE_APP_ORIGIN ?? request.nextUrl.origin;
 }
 
+export function sessionAuthorization(request: NextRequest) {
+  const token = request.cookies.get(sessionCookie)?.value;
+  return token && /^[A-Za-z0-9_-]{43}$/.test(token) ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
 export function accountBackend(path: string, options: RequestInit = {}, timeout = 10000) {
   const origin = process.env.READCODE_API_URL ?? "http://127.0.0.1:8000";
   return fetch(new URL(`/v1/auth/${path}`, origin), {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { accountBackend as backend, appOrigin, noStore, sessionCookie, setSession, validSession } from "@/lib/account-server";
+import { accountBackend as backend, appOrigin, noStore, sessionAuthorization, setSession, validSession } from "@/lib/account-server";
 
 function error(message: string, status: number) {
   return NextResponse.json({ message }, { status, headers: noStore });
@@ -41,11 +41,6 @@ function validCredentials(body: unknown): body is {
     "password" in body && typeof body.password === "string";
 }
 
-function authorization(request: NextRequest) {
-  const token = request.cookies.get(sessionCookie)?.value;
-  return token && /^[A-Za-z0-9_-]{43}$/.test(token) ? { Authorization: `Bearer ${token}` } : undefined;
-}
-
 function signedOut(clearCookie = false) {
   const response = NextResponse.json({ account: null }, { headers: noStore });
   if (clearCookie) setSession(response, "", 0);
@@ -83,7 +78,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  const headers = authorization(request);
+  const headers = sessionAuthorization(request);
   if (!headers) return signedOut();
   try {
     const upstream = await backend("session", { headers });
@@ -99,7 +94,7 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   if (!sameOrigin(request)) return error("Open Readcode directly to continue.", 403);
-  const headers = authorization(request);
+  const headers = sessionAuthorization(request);
   if (!headers) return signedOut(true);
   try {
     const upstream = await backend("sign-out", { method: "POST", headers });

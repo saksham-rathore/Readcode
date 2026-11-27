@@ -1,7 +1,14 @@
 from functools import lru_cache
 
-from pydantic import SecretStr
+from pydantic import BaseModel, Field, HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class WorkspaceAgent(BaseModel):
+    label: str = Field(min_length=1, max_length=80)
+    model: str = Field(min_length=1, max_length=120)
+    base_url: HttpUrl
+    api_key: SecretStr
 
 
 class Settings(BaseSettings):
@@ -13,6 +20,8 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     allowed_origins: str = "http://localhost:3000"
     trusted_hosts: str = "localhost,127.0.0.1"
+    workspace_dir: str = "./data/workspaces"
+    workspace_agents: dict[str, WorkspaceAgent] = Field(default_factory=dict)
     oauth_app_origin: str = "http://localhost:3000"
     google_client_id: str = ""
     google_client_secret: SecretStr = SecretStr("")

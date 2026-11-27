@@ -57,6 +57,13 @@ class Conversation(Base):
     messages: Mapped[list["Message"]] = relationship(back_populates="conversation", cascade="all, delete-orphan", order_by="Message.created_at")
 
 
+class ConversationTask(Base):
+    __tablename__ = "conversation_tasks"
+    conversation_id: Mapped[str] = mapped_column(ForeignKey("conversations.id", ondelete="CASCADE"), primary_key=True)
+    agent_id: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16))
+
+
 class Message(Base):
     __tablename__ = "messages"
     __table_args__ = (Index("ix_messages_conversation_created", "conversation_id", "created_at"),)
