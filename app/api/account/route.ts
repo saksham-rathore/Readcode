@@ -1,32 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const secureCookie = process.env.NODE_ENV === "production";
-const sessionCookie = secureCookie ? "__Host-readcode_session" : "readcode_session";
-const noStore = { "Cache-Control": "no-store" };
-const cookieOptions = {
-  httpOnly: true,
-  secure: secureCookie,
-  sameSite: "lax" as const,
-  path: "/",
-};
+import { accountBackend as backend, appOrigin, noStore, sessionCookie, setSession, validSession } from "@/lib/account-server";
 
 function error(message: string, status: number) {
   return NextResponse.json({ message }, { status, headers: noStore });
 }
 
 function sameOrigin(request: NextRequest) {
-  const origin = process.env.READCODE_APP_ORIGIN ?? request.nextUrl.origin;
-  return request.headers.get("origin") === origin;
-}
-
-function backend(path: "sign-in" | "sign-up" | "session" | "sign-out", options: RequestInit = {}) {
-  const origin = process.env.READCODE_API_URL ?? "http://127.0.0.1:8000";
-  return fetch(new URL(`/v1/auth/${path}`, origin), {
-    ...options,
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(10000),
-  });
+  return request.headers.get("origin") === appOrigin(request);
 }
 
 async function readBody(request: NextRequest): Promise<unknown> {
@@ -68,7 +48,7 @@ function authorization(request: NextRequest) {
 
 function signedOut(clearCookie = false) {
   const response = NextResponse.json({ account: null }, { headers: noStore });
-  if (clearCookie) response.cookies.set(sessionCookie, "", { ...cookieOptions, maxAge: 0 });
+  if (clearCookie) setSession(response, "", 0);
   return response;
 }
 
@@ -91,13 +71,11 @@ export async function POST(request: NextRequest) {
       if (upstream.status === 429) return error("Too many attempts. Try again in a few minutes.", 429);
       return error("Account access is temporarily unavailable.", 503);
     }
-    const { account, token, expires_in: maxAge } = await upstream.json();
-    if (typeof account?.email !== "string" || typeof token !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(token) || !Number.isInteger(maxAge) || maxAge <= 0) {
-      return error("Account access is temporarily unavailable.", 503);
-    }
+    const session: unknown = await upstream.json();
+    if (!validSession(session)) return error("Account access is temporarily unavailable.", 503);
+    const { account, token, expires_in: maxAge } = session;
     const response = NextResponse.json({ account: { email: account.email } }, { headers: noStore });
-    response.cookies.set(sessionCookie, token, { ...cookieOptions, maxAge });
+    setSession(response, token, maxAge);
     return response;
   } catch {
     return error("Could not reach the Readcode API. Try again in a moment.", 503);

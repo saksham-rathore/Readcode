@@ -18,6 +18,13 @@ class Account(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
 
 
+class OAuthIdentity(Base):
+    __tablename__ = "oauth_identities"
+    provider: Mapped[str] = mapped_column(String(16), primary_key=True)
+    subject: Mapped[str] = mapped_column(String(255), primary_key=True)
+    account_id: Mapped[str] = mapped_column(ForeignKey("accounts.id", ondelete="CASCADE"))
+
+
 class AccountSession(Base):
     __tablename__ = "account_sessions"
     token_digest: Mapped[str] = mapped_column(String(64), primary_key=True)

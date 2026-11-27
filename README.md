@@ -46,6 +46,20 @@ Open `/sign-up` to make an email and password account, or `/sign-in` to resume a
 
 API clients can send the token from sign-in or sign-up as `Authorization: Bearer <token>`. Projects and conversations are scoped to the account. Development API clients can still use a temporary `X-User-ID` for existing local data. Use HTTPS and set `REDIS_URL` for production account-attempt limits.
 
+### Google and GitHub sign-in
+
+1. Register a [Google web OAuth client](https://developers.google.com/identity/openid-connect/openid-connect) and a [GitHub OAuth app](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app). For local development, register these callback URLs:
+
+   | Provider | Callback URL |
+   | --- | --- |
+   | Google | `http://localhost:3000/api/account/oauth/google/callback` |
+   | GitHub | `http://localhost:3000/api/account/oauth/github/callback` |
+
+2. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GITHUB_CLIENT_ID`, and `GITHUB_CLIENT_SECRET` in `backend/.env`. Set `OAUTH_APP_ORIGIN` to the frontend origin, and register callbacks on that same origin. On a deployed frontend, set `READCODE_APP_ORIGIN` to match. Use HTTPS outside local development.
+3. Run `alembic upgrade head` on a database already managed by Alembic. Restart FastAPI. For Compose, use `docker compose --env-file backend/.env up --build` to pass in the OAuth settings.
+
+An account created with a provider signs in with that provider. If the email is already registered with another method, users are prompted to use their original method.
+
 ## Scaling path
 
 The API is stateless between requests, uses async I/O, bounded Postgres connection pools, shared Redis counters, and externalized conversation state. Run multiple API replicas behind a load balancer and size each replica's DB pool against the Postgres connection budget. The current pool is 20 connections plus 10 overflow per process. Keep model calls outside database transactions and move repository cloning/indexing into a durable worker queue before enabling it for users. A 1,000-user target needs load testing against the selected model provider, database, and deployment limits; this starter does not claim a measured capacity yet.

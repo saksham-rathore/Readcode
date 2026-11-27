@@ -11,6 +11,7 @@ from sqlalchemy import desc, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import ACCOUNT_OWNER_PREFIX, Bearer, Database, authenticated_session, router as auth_router
+from .oauth import router as oauth_router
 from .config import get_settings
 from .database import Base, engine, get_session
 from .models import Conversation, Message, Project
@@ -35,6 +36,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="readcode API", version="0.1.0", lifespan=lifespan)
 app.include_router(auth_router)
+app.include_router(oauth_router)
 app.add_middleware(CORSMiddleware, allow_origins=settings.origins, allow_credentials=True, allow_methods=["GET", "POST", "OPTIONS"], allow_headers=["Authorization", "Content-Type", "X-User-ID"])
 if settings.app_env == "production":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.hosts)

@@ -149,8 +149,8 @@ async def sign_in(request: Request, response: Response, db: Database):
     await limit_attempts(request, email)
     account = await db.scalar(select(Account).where(Account.email == email))
     async with hash_slots:
-        matched = await run_in_threadpool(password_hasher.verify, password, account.password_hash if account else dummy_hash)
-    if not account or not matched:
+        matched = await run_in_threadpool(password_hasher.verify, password, (account.password_hash if account else None) or dummy_hash)
+    if not account or not account.password_hash or not matched:
         raise HTTPException(401, "The email or password is incorrect.")
     response.headers["Cache-Control"] = "no-store"
     return await create_session(account, db)

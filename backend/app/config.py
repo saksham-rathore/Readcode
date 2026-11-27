@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,6 +13,11 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     allowed_origins: str = "http://localhost:3000"
     trusted_hosts: str = "localhost,127.0.0.1"
+    oauth_app_origin: str = "http://localhost:3000"
+    google_client_id: str = ""
+    google_client_secret: SecretStr = SecretStr("")
+    github_client_id: str = ""
+    github_client_secret: SecretStr = SecretStr("")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
