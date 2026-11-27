@@ -1,8 +1,22 @@
 .account-page {
-  --account-ink: #172333;
-  --account-muted: #4d5968;
-  --account-accent: #1f60b5;
-  --account-line: #dce7f3;
+  --color-1: #131316;
+  --color-2: #5D5D68;
+  --color-3: #4B4B55;
+  --color-4: #FFFFFF;
+  --color-5: #212121;
+  --color-6: #EFEFED;
+  --color-7: #3CD0FD;
+  --color-8: #000000;
+  --color-9: #4285F4;
+  --color-10: #34A853;
+  --color-11: #FBBC05;
+  --color-12: #EA4335;
+  --color-13: #FFC4DD;
+  --color-14: #FFF3A0;
+  --color-15: #D0CEFB;
+  --account-ink: var(--color-1);
+  --account-muted: var(--color-3);
+  --account-hover: color-mix(in srgb, var(--color-6) 90%, var(--color-5));
   --account-mono: var(--font-geist-mono), ui-monospace, monospace;
   display: grid;
   grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr);
@@ -10,7 +24,7 @@
   min-height: 100svh;
   padding: 10px;
   color: var(--account-ink);
-  background: #fcfdff;
+  background: var(--color-4);
   font: 450 15px/1.6 var(--font-body);
 }
 
@@ -22,19 +36,19 @@
   min-height: 640px;
   overflow: hidden;
   padding: clamp(40px, 8vh, 90px) clamp(24px, 6vw, 100px) 156px;
-  border: 1px solid #0a74a820;
+  border: 1px solid color-mix(in srgb, var(--color-8) 9%, transparent);
   border-radius: 28px;
-  background: #27bdf4 url('/landing/hero-bg.webp') 48% bottom / cover no-repeat;
+  background: var(--color-7) url('/landing/hero-bg.webp') 48% bottom / cover no-repeat;
 }
 .account-workspace {
   position: relative;
   z-index: 1;
   width: min(100%, 560px);
   padding: clamp(24px, 3vw, 38px);
-  border: 1px solid #fff;
+  border: 1px solid var(--color-4);
   border-radius: 22px;
-  background: #f9fdff;
-  box-shadow: 0 4px 0 #b8eff9, 0 14px 36px #173d641f;
+  background: var(--color-4);
+  box-shadow: 0 4px 0 var(--color-14), 0 14px 36px color-mix(in srgb, var(--color-8) 11%, transparent);
 }
 .account-workspace h2 {
   margin: 0;
@@ -75,7 +89,7 @@
   letter-spacing: -.045em;
 }
 .account-intro { margin: 10px 0 25px; color: var(--account-muted); }
-.account-heading-icon { display: grid; width: 42px; height: 42px; margin-bottom: 16px; place-items: center; border-radius: 12px; background: #e9f5ff; color: var(--account-accent); }
+.account-heading-icon { display: grid; width: 42px; height: 42px; margin-bottom: 16px; place-items: center; border-radius: 12px; background: var(--color-15); color: var(--account-ink); }
 .account-email { color: var(--account-ink); font: 450 .9em/1.5 var(--account-mono); overflow-wrap: anywhere; }
 .account-providers { display: grid; gap: 8px; }
 .account-providers a {
@@ -85,33 +99,32 @@
   gap: 10px;
   min-height: 48px;
   padding: 8px 14px;
-  border: 1px solid #e8ebee;
+  border: 0;
   border-radius: 999px;
-  background: #eff1f3;
+  background: var(--color-6);
   color: var(--account-ink);
   font-weight: 500;
   transition: background-color .18s ease;
 }
-.account-providers a:hover { background: #e6eaef; }
+.account-providers a:hover { background: var(--account-hover); }
 .account-providers img { flex: none; object-fit: contain; }
-.account-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--account-muted); font: 450 12px/1.55 var(--account-mono); }
-.account-divider::before, .account-divider::after { content: ""; flex: 1; height: 1px; background: var(--account-line); }
+.account-divider { margin: 20px 0; color: var(--account-muted); font: 450 12px/1.55 var(--account-mono); text-align: center; }
 .account-form { display: grid; gap: 8px; }
 .account-form label { font-size: 14px; font-weight: 500; }
 .account-form label:not(:first-child) { margin-top: 6px; }
 .account-input { position: relative; }
-.account-input-icon { position: absolute; top: 50%; left: 14px; transform: translateY(-50%); color: #587492; pointer-events: none; }
+.account-input-icon { position: absolute; top: 50%; left: 14px; transform: translateY(-50%); color: var(--color-2); pointer-events: none; }
 .account-form input {
   width: 100%;
   min-height: 48px;
   padding: 10px 14px;
-  border: 1px solid var(--account-line);
-  border-radius: 12px;
-  background: #f6faff;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-6);
   color: var(--account-ink);
   font: 450 16px/1.4 var(--font-body);
 }
-.account-form input::placeholder { color: #627084; }
+.account-form input::placeholder { color: var(--color-2); }
 .account-form input[type="email"] { padding-left: 42px; }
 .account-form input[name="password"] { padding-right: 48px; }
 .account-password-toggle {
@@ -123,9 +136,9 @@
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: #587492;
+  color: var(--color-2);
 }
-.account-password-toggle:hover { background: #eaf4ff; }
+.account-password-toggle:hover { background: var(--account-hover); }
 .account-hint { margin: 0; color: var(--account-muted); font: 450 11px/1.55 var(--account-mono); }
 .account-primary {
   display: grid;
@@ -137,23 +150,23 @@
   padding: 9px 14px;
   border: 0;
   border-radius: 999px;
-  background: #205aa9;
-  color: #fff;
+  background: var(--color-5);
+  color: var(--color-4);
   font-weight: 500;
   text-align: center;
   transition: background-color .18s ease;
 }
 .account-primary::before { content: ""; }
-.account-primary:hover { background: #194587; }
-.account-primary:disabled { background: #637996; cursor: wait; }
-.account-sign-out { display: block; min-height: 44px; margin: 8px auto 0; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--account-accent); font-weight: 500; }
-.account-sign-out:hover { background: #edf6ff; }
-.account-page :where(a, button, input):focus-visible { outline: 2px solid var(--account-accent); outline-offset: 3px; }
-.account-notice { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; background: #fff2eb; color: #81341e; font-size: 13px; }
+.account-primary:hover { background: var(--color-8); }
+.account-primary:disabled { background: color-mix(in srgb, var(--color-5) 44%, var(--color-6)); cursor: wait; }
+.account-sign-out { display: block; min-height: 44px; margin: 8px auto 0; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--color-5); font-weight: 500; }
+.account-sign-out:hover { background: var(--color-6); }
+.account-page :where(a, button, input):focus-visible { outline: 2px solid var(--color-5); outline-offset: 3px; }
+.account-notice { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--color-13) 45%, var(--color-4)); color: var(--account-ink); font-size: 13px; }
 .account-notice svg { flex: none; margin-top: 2px; }
 .account-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; margin-top: 22px; color: var(--account-muted); font-size: 14px; }
 .account-links p { margin: 0; }
-.account-links a, .account-footer a { color: var(--account-accent); font-weight: 500; }
+.account-links a, .account-footer a { color: var(--color-5); font-weight: 500; }
 .account-footer { text-align: center; font: 450 12px/1.55 var(--account-mono); }
 
 @media (max-width: 820px) {
