@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -9,6 +10,7 @@ class WorkspaceAgent(BaseModel):
     model: str = Field(min_length=1, max_length=120)
     base_url: HttpUrl
     api_key: SecretStr
+    protocol: Literal["openai", "anthropic"] = "openai"
 
 
 class Settings(BaseSettings):
@@ -18,6 +20,15 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
+    openai_models: str = ""
+    anthropic_api_key: SecretStr = SecretStr("")
+    anthropic_models: str = "claude-sonnet-5-5"
+    gemini_api_key: SecretStr = SecretStr("")
+    gemini_models: str = "gemini-3.8-flash"
+    groq_api_key: SecretStr = SecretStr("")
+    groq_models: str = "openai/gpt-oss-120b"
+    xai_api_key: SecretStr = SecretStr("")
+    xai_models: str = "grok-4.7"
     allowed_origins: str = "http://localhost:3000"
     trusted_hosts: str = "localhost,127.0.0.1"
     workspace_dir: str = "./data/workspaces"

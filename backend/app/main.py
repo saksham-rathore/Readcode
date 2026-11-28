@@ -12,9 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import ACCOUNT_OWNER_PREFIX, Bearer, Database, authenticated_session, router as auth_router
 from .oauth import router as oauth_router
-from .workspace import router as workspace_router
+from .workspace import ProjectAccess, action_repository, router as workspace_router
+from .workspace_actions import ACTION_DESCRIPTIONS, Action, ActionSuggestion, available_actions
 from .config import get_settings
 from .database import Base, engine, get_session
+from .model_providers import complete, get_model
 from .models import Conversation, ConversationTask, Message, Project
 from .schemas import ChatRequest, ChatResponse, ProjectCreate, ProjectRead
 
@@ -116,14 +118,7 @@ async def chat(payload: ChatRequest, request: Request, owner_id: str = Depends(r
             project = await session.scalar(select(Project).where(Project.id == conversation.project_id, Project.owner_id == owner_id))
     task = await session.get(ConversationTask, conversation.id) if conversation else None
     agent_id = task.agent_id if task else "default"
-    agent = settings.workspace_agents.get(agent_id) if agent_id != "default" else None
-    if agent_id != "default" and not agent:
-        raise HTTPException(status_code=503, detail="The assigned assistant is unavailable. Choose another assistant for this thread.")
-    api_key = agent.api_key.get_secret_value() if agent else settings.openai_api_key
-    base_url = str(agent.base_url) if agent else settings.openai_base_url
-    model = agent.model if agent else settings.openai_model
-    if not api_key or not api_key.strip():
-        raise HTTPException(status_code=503, detail="This model needs provider setup before it can be used.")
+    model = get_model(settings, agent_id)
     if conversation is None:
         conversation = Conversation(owner_id=owner_id, project_id=project.id if project else None, title=payload.prompt[:72])
         session.add(conversation)
@@ -137,26 +132,33 @@ async def chat(payload: ChatRequest, request: Request, owner_id: str = Depends(r
     system_prompt = "You are a careful coding assistant. Give practical, concise answers. When writing code, use fenced code blocks and explain where files belong. Be honest about what you have not inspected."
     if project:
         system_prompt += f" The active project is {project.name}. Repository URL: {project.repository_url or 'not connected'}; repository files have not been indexed yet."
-    try:
-        response = await request.app.state.http.post(
-            f"{base_url.rstrip('/')}/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}"},
-            json={"model": model, "messages": [{"role": "system", "content": system_prompt}, *history, {"role": "user", "content": payload.prompt}], "temperature": 0.2},
-        )
-        response.raise_for_status()
-        answer = response.json()["choices"][0]["message"]["content"]
-        if not isinstance(answer, str) or not answer.strip():
-            raise ValueError("No text response from the provider")
-    except httpx.HTTPStatusError as error:
-        raise HTTPException(status_code=502, detail="The model provider rejected the request. Check model and API key configuration.") from error
-    except (httpx.HTTPError, KeyError, IndexError, ValueError, TypeError):
-        raise HTTPException(status_code=502, detail="The model provider is temporarily unavailable.")
+    answer = await complete(request.app.state.http, model, system_prompt, [*history, {"role": "user", "content": payload.prompt}])
 
     session.add(Message(conversation_id=conversation.id, role="user", content=payload.prompt))
     session.add(Message(conversation_id=conversation.id, role="assistant", content=answer))
     conversation.updated_at = datetime.now(timezone.utc)
     await session.commit()
-    return ChatResponse(conversation_id=conversation.id, answer=answer, model=model)
+    return ChatResponse(conversation_id=conversation.id, answer=answer, model=model.model)
+
+
+@app.post("/v1/workspace/projects/{project_id}/action-suggestions")
+async def suggest_workspace_action(
+    payload: ActionSuggestion, request: Request, project: ProjectAccess, db: Database, owner: str = Depends(rate_limit),
+) -> dict[str, Action | None]:
+    repo = await action_repository(payload.thread_id, project, owner, db)
+    actions = available_actions(project.repository_url, repo)
+    if not actions:
+        raise HTTPException(409, "Connect a repository or open a thread worktree to use workspace actions.")
+    model = get_model(settings, payload.agent_id)
+    await db.commit()
+    options = "\n".join(f"{action}: {ACTION_DESCRIPTIONS[action]}" for action in actions)
+    prompt = (
+        "Choose one workspace action that matches the user's request. Reply with only its exact ID, "
+        "or reply none when no action matches. Do not execute anything or supply arguments. Available actions:\n"
+        f"{options}"
+    )
+    result = (await complete(request.app.state.http, model, prompt, [{"role": "user", "content": payload.prompt}])).strip()
+    return {"action": next((action for action in actions if action == result), None)}
 
 
 @app.exception_handler(Exception)

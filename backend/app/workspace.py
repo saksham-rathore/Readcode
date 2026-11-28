@@ -11,9 +11,11 @@ from sqlalchemy import desc, select, update
 
 from .auth import ACCOUNT_OWNER_PREFIX, ActiveSession, Database
 from .config import get_settings
+from .model_providers import model_catalog
 from .models import Conversation, ConversationTask, Message, Project
 from .repository import TEXT_LIMIT, Repository, call_repository, public_clone_url
 from .schemas import MessageRead, ProjectRead, ThreadCreate, ThreadHistory, ThreadRead, ThreadTask, WorkspaceModelRead
+from .workspace_actions import ActionRequest, ActionResult, run_action
 
 router = APIRouter(prefix="/v1/workspace")
 
@@ -115,8 +117,17 @@ def thread_repo(thread: ThreadAccess) -> Repository:
 RepoAccess = Annotated[Repository, Depends(thread_repo)]
 
 
+async def action_repository(thread_id: UUID | None, project: Project, owner: str, db: Database) -> Repository | None:
+    if thread_id is None:
+        return None
+    thread = await owned_thread(thread_id, owner, db)
+    if thread.project_id != project.id:
+        raise HTTPException(404, "Thread not found in this project.")
+    return thread_repo(thread)
+
+
 def require_agent(agent_id: str) -> None:
-    if agent_id != "default" and agent_id not in get_settings().workspace_agents:
+    if agent_id not in model_catalog(get_settings()):
         raise HTTPException(422, "Choose a configured workspace agent.")
 
 
@@ -129,19 +140,11 @@ def describe_thread(thread: Conversation, task: ConversationTask | None) -> Thre
 
 @router.get("/agents", response_model=list[WorkspaceModelRead])
 async def list_agents(_: Owner):
-    settings = get_settings()
     return [
         WorkspaceModelRead(
-            id="default", label="Default assistant", model=settings.openai_model,
-            available=bool((settings.openai_api_key or "").strip()),
-        ),
-        *(
-            WorkspaceModelRead(
-                id=agent_id, label=agent.label, model=agent.model,
-                available=bool(agent.api_key.get_secret_value().strip()),
-            )
-            for agent_id, agent in settings.workspace_agents.items() if agent_id != "default"
-        ),
+            id=agent_id, label=model.label, model=model.model, available=model.available,
+        )
+        for agent_id, model in model_catalog(get_settings()).items()
     ]
 
 
@@ -206,6 +209,14 @@ async def update_task(payload: ThreadTask, thread: ThreadAccess, db: Database):
 async def repository_status(project: ProjectAccess):
     repository = Repository(project.id)
     return await run_in_threadpool(call_repository, repository.status)
+
+
+@router.post("/projects/{project_id}/actions", response_model=ActionResult)
+async def run_workspace_action(payload: ActionRequest, project: ProjectAccess, owner: Owner, db: Database):
+    repo = await action_repository(payload.thread_id, project, owner, db)
+    repository_url = project.repository_url
+    await db.commit()
+    return await run_in_threadpool(call_repository, run_action, payload.action, repository_url, repo)
 
 
 @router.post("/projects/{project_id}/repository", response_model=ProjectRead)

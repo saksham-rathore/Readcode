@@ -103,7 +103,17 @@
 .workspace-slash { color: var(--workspace-muted); }
 .workspace-location { overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
 .workspace-nav-toggle { display: none; }
-.workspace-repo-toggle { margin-left: auto; }
+.workspace-actions-toggle { margin-left: auto; }
+.workspace-actions-body { display: grid; gap: 14px; }
+.workspace-action-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.workspace-action-options button { display: flex; width: 100%; height: 100%; align-items: center; gap: 9px; padding: 10px; text-align: left; }
+.workspace-action-options svg { flex: none; color: var(--workspace-muted); }
+.workspace-action-options strong, .workspace-action-options small { display: block; }
+.workspace-action-suggestion { padding-top: 12px; border-top: 1px solid var(--workspace-line); }
+.workspace-action-suggestion > button { justify-self: start; }
+.workspace-action-review { padding: 10px; border: 1px solid var(--workspace-line); border-radius: 8px; background: var(--workspace-panel); }
+.workspace-action-review p, .workspace-actions-body > p { margin: 0; }
+.workspace-action-link { justify-self: start; }
 
 .workspace-layout { position: relative; display: grid; min-width: 0; min-height: 0; padding: 0 24px; }
 .workspace-chat { display: flex; width: min(100%, var(--workspace-chat-width)); min-width: 0; min-height: 0; flex-direction: column; justify-self: center; padding-bottom: 20px; }

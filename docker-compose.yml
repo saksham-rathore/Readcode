@@ -33,6 +33,15 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_MODELS:
+      ANTHROPIC_API_KEY:
+      ANTHROPIC_MODELS:
+      GEMINI_API_KEY:
+      GEMINI_MODELS:
+      GROQ_API_KEY:
+      GROQ_MODELS:
+      XAI_API_KEY:
+      XAI_MODELS:
       ALLOWED_ORIGINS: http://localhost:3000
       TRUSTED_HOSTS: localhost,127.0.0.1,api
       OAUTH_APP_ORIGIN: ${OAUTH_APP_ORIGIN:-http://localhost:3000}

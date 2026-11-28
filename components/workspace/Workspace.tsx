@@ -8,6 +8,7 @@ import { workspaceRequest, type Agent, type History, type Project, type TaskStat
 import RepositoryPanel from "./RepositoryPanel";
 import ModelPicker from "./ModelPicker";
 import ProjectSourcePicker from "./ProjectSourcePicker";
+import WorkspaceActions from "./WorkspaceActions";
 import "./workspace.css";
 
 function MessageContent({ content }: { content: string }) {
@@ -203,6 +204,13 @@ export default function Workspace() {
 
   const canSend = project && prompt.trim() && modelAvailable && !creatingThread && !pending[threadId] && !savingTask && (!threadId || history);
 
+  function addToDraft(content: string) {
+    const next = prompt ? `${prompt}\n\n${content}` : content;
+    if (next.length > 12000 || pending[threadId] || creatingThread) return false;
+    setDrafts(items => ({ ...items, [draftId]: next }));
+    return true;
+  }
+
   return (
     <main className="workspace-shell" ref={shell}>
       <aside className="workspace-nav" aria-label="Projects and threads" data-open={showNav}>
@@ -258,6 +266,8 @@ export default function Workspace() {
         </label>
         <span className="workspace-slash" aria-hidden="true">/</span>
         <strong className="workspace-location">{thread?.title ?? "New thread"}</strong>
+        {project && <WorkspaceActions key={thread?.id ?? project.id} project={project} threadId={threadId}
+          portal={shell} agentId={agentId} modelAvailable={Boolean(modelAvailable)} onAttach={addToDraft} />}
         {project && <button className="workspace-icon workspace-repo-toggle" aria-label="Toggle repository panel" title="Repository tools" aria-expanded={showRepo} onClick={() => setRepoPreference(!showRepo)}><GitBranchIcon size={17} /></button>}
       </header>
 
@@ -310,13 +320,9 @@ export default function Workspace() {
           <RepositoryPanel key={thread?.id ?? project.id} project={project} threadId={thread?.id} onConnect={updated => {
             setProjects(items => items.map(item => item.id === updated.id ? updated : item));
           }} onAttach={({ path, content }) => {
-            const snippet = `File: ${path}\n\n${content}`;
-            const next = prompt ? `${prompt}\n\n${snippet}` : snippet;
-            if (next.length > 12000 || pending[threadId]) {
+            if (!addToDraft(`File: ${path}\n\n${content}`)) {
               setChatErrors(items => ({ ...items, [threadId]: "Wait for the active reply or shorten the draft before adding the file." }));
-              return;
             }
-            setDrafts(items => ({ ...items, [draftId]: next }));
           }} />
         </div>}
       </div>

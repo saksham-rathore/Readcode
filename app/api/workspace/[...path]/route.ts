@@ -6,7 +6,7 @@ const readRoutes = new RegExp(
   `^(agents|projects|projects/${uuid}/(?:threads|repository)|threads/${uuid}(?:/(?:worktree|files|file|diff|checkpoints))?)$`,
 );
 const writeRoutes = new RegExp(
-  `^(project-sources|projects|chat|projects/${uuid}/(?:threads|repository|clone)|threads/${uuid}/(?:task|worktree|file|checkpoints|restore))$`,
+  `^(project-sources|projects|chat|projects/${uuid}/(?:threads|repository|clone|actions|action-suggestions)|threads/${uuid}/(?:task|worktree|file|checkpoints|restore))$`,
 );
 
 function error(message: string, status: number) {

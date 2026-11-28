@@ -50,7 +50,9 @@ docker compose up --build
 
 `WORKSPACE_DIR` selects the server directory for clones and worktrees. Compose keeps it on a named volume. Use a versioned database migration with `alembic upgrade head` for databases managed by Alembic. A local development API also creates any new tables on startup.
 
-Threads retain their messages, task status, and assistant selection. To add another OpenAI-compatible assistant, set `WORKSPACE_AGENTS` to a JSON object mapping a short ID to `label`, `model`, `base_url`, and `api_key`. Keep that setting in the backend environment. Different threads can request replies at the same time.
+Threads retain their messages, task status, and model selection. Configure OpenAI, Anthropic, Google Gemini, Groq, or xAI Grok using the keys and model lists in `backend/.env.example`. For Docker Compose, set the same variables in the shell or the root Compose environment file. Configured models are available to signed-in users. To add a custom endpoint, set `WORKSPACE_AGENTS` to a JSON object mapping a short ID to `label`, `model`, `base_url`, and `api_key`. Set `protocol` to `anthropic` for a Claude Messages endpoint. Different threads can request replies at the same time.
+
+Open **Workspace actions** in the workspace header to open the repository website or GitHub Issues, list the selected worktree's files, or inspect Git status and recent commits. With an available model, **Suggest action** proposes one of those actions for you to review. Approve it to run, then optionally add text output to your draft.
 
 Open `/sign-up` to make an email and password account, or `/sign-in` to resume a session. The Next.js server calls FastAPI at `http://127.0.0.1:8000` by default and keeps the session token in an HTTP-only cookie. Set `READCODE_API_URL` on the Next.js server if FastAPI runs elsewhere. Set `READCODE_APP_ORIGIN` to the public HTTPS origin when running behind a reverse proxy.
 
