@@ -1,6 +1,6 @@
 export type Project = { id: string; name: string; repository_url: string | null };
 export type TaskStatus = "open" | "in_progress" | "done";
-export type Agent = { id: string; label: string; model: string };
+export type Agent = { id: string; label: string; model: string; available: boolean };
 export type Thread = { id: string; project_id: string; title: string; agent_id: string; task_status: TaskStatus };
 export type Message = { id: string; role: string; content: string };
 export type History = Thread & { messages: Message[] };

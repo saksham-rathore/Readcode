@@ -9,8 +9,11 @@ type FileContent = { path: string; content: string };
 type Changes = { status: string; diff: string };
 type Checkpoint = { id: string; title: string };
 
-export default function RepositoryPanel({ project, threadId, onAttach }: {
-  project: Project; threadId: string; onAttach: (file: FileContent) => void;
+export default function RepositoryPanel({ project, threadId, onConnect, onAttach }: {
+  project: Project;
+  threadId?: string;
+  onConnect: (project: Project) => void;
+  onAttach: (file: FileContent) => void;
 }) {
   const [worktree, setWorktree] = useState<Worktree>();
   const [files, setFiles] = useState<string[]>([]);
@@ -22,18 +25,22 @@ export default function RepositoryPanel({ project, threadId, onAttach }: {
   const [tab, setTab] = useState<"files" | "changes" | "checkpoints">("files");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [statusAttempt, setStatusAttempt] = useState(0);
   const thread = `threads/${threadId}`;
+  const repository = `projects/${project.id}/repository`;
+  const statusPath = threadId ? `${thread}/worktree` : repository;
 
   useEffect(() => {
     const controller = new AbortController();
-    workspaceRequest<Worktree>(`${thread}/worktree`, undefined, controller.signal)
+    workspaceRequest<Worktree>(statusPath, undefined, controller.signal)
       .then(async result => {
+        if (controller.signal.aborted) return;
         setWorktree(result);
         if (result.ready) setFiles(await workspaceRequest<string[]>(`${thread}/files`, undefined, controller.signal));
       })
       .catch((error: Error) => { if (!controller.signal.aborted) setNotice(error.message); });
     return () => controller.abort();
-  }, [thread]);
+  }, [project.repository_url, statusPath, statusAttempt, thread]);
 
   async function run(operation: () => Promise<void>) {
     if (busy) return;
@@ -44,10 +51,16 @@ export default function RepositoryPanel({ project, threadId, onAttach }: {
     finally { setBusy(false); }
   }
 
+  function connect(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const repository_url = String(new FormData(event.currentTarget).get("repository_url")).trim();
+    if (!repository_url) return;
+    void run(async () => onConnect(await workspaceRequest<Project>(repository, { repository_url })));
+  }
+
   function clone() {
     void run(async () => {
-      await workspaceRequest(`projects/${project.id}/clone`, { approved: true });
-      setWorktree({ imported: true, ready: false, branch: null });
+      setWorktree(await workspaceRequest<Worktree>(`projects/${project.id}/clone`, { approved: true }));
     });
   }
 
@@ -119,12 +132,20 @@ export default function RepositoryPanel({ project, threadId, onAttach }: {
 
   return (
     <aside className="workspace-repo" aria-label="Repository tools" aria-busy={busy}>
-      <div className="workspace-section-heading"><h2><GitBranchIcon size={17} aria-hidden="true" /> Worktree</h2></div>
+      <div className="workspace-section-heading"><h2><GitBranchIcon size={17} aria-hidden="true" /> {threadId ? "Worktree" : "Repository"}</h2></div>
       {worktree?.branch && <code className="workspace-branch" title={worktree.branch}>{worktree.branch}</code>}
       {notice && <p className="workspace-repo-notice" role="status">{notice}</p>}
-      {!project.repository_url && <p className="workspace-muted">Add a project with a GitHub URL to use repository tools.</p>}
-      {project.repository_url && worktree && !worktree.imported && <button className="workspace-action" disabled={busy} onClick={clone}>{busy ? "Cloning…" : "Clone GitHub repository"}</button>}
-      {worktree?.imported && !worktree.ready && <button className="workspace-action" disabled={busy} onClick={openWorktree}>{busy ? "Opening…" : "Open thread worktree"}</button>}
+      {worktree && !worktree.imported && !project.repository_url && <form className="workspace-stack" onSubmit={connect}>
+        <label>Public repository URL<input name="repository_url" type="url" maxLength={2048} placeholder="https://github.com/owner/repo" required /><small>GitHub, GitLab.com, or Codeberg over HTTPS</small></label>
+        <button className="workspace-action" disabled={busy}>{busy ? "Connecting…" : "Connect repository"}</button>
+      </form>}
+      {project.repository_url && <p className="workspace-muted workspace-repo-url">{project.repository_url}</p>}
+      {!worktree && (notice
+        ? <button className="workspace-quiet" onClick={() => { setNotice(""); setStatusAttempt(attempt => attempt + 1); }}>Retry connection</button>
+        : <p className="workspace-muted" role="status">Checking repository…</p>)}
+      {project.repository_url && worktree && !worktree.imported && <button className="workspace-action" disabled={busy} onClick={clone}>{busy ? "Cloning…" : "Clone repository"}</button>}
+      {worktree?.imported && !threadId && <p className="workspace-muted">Repository ready. Open a thread to set up its worktree.</p>}
+      {threadId && worktree?.imported && !worktree.ready && <button className="workspace-action" disabled={busy} onClick={openWorktree}>{busy ? "Opening…" : "Open thread worktree"}</button>}
       {worktree?.ready && <>
         <div className="workspace-repo-tabs" aria-label="Worktree views">
           {(["files", "changes", "checkpoints"] as const).map(value => <button key={value} aria-pressed={tab === value} disabled={busy} onClick={() => selectTab(value)}>{value}</button>)}

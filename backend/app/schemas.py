@@ -30,6 +30,13 @@ class ChatResponse(BaseModel):
     model: str
 
 
+class WorkspaceModelRead(BaseModel):
+    id: str
+    label: str
+    model: str
+    available: bool
+
+
 class ThreadCreate(BaseModel):
     title: str = Field(min_length=1, max_length=180, pattern=r"\S")
     agent_id: str = Field(default="default", pattern=r"^[A-Za-z0-9_-]{1,64}$")

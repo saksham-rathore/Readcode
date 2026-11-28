@@ -14,18 +14,30 @@ from .config import get_settings
 TEXT_LIMIT = 256 * 1024
 OUTPUT_LIMIT = 512 * 1024
 GITHUB_PATH = re.compile(r"/[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}/?")
+REPOSITORY_SEGMENT = r"[A-Za-z0-9_][A-Za-z0-9_.-]{0,99}"
+PUBLIC_GIT_PATHS = {
+    "github.com": GITHUB_PATH,
+    "gitlab.com": re.compile(rf"(/{REPOSITORY_SEGMENT}){{2,}}/?"),
+    "codeberg.org": re.compile(rf"(/{REPOSITORY_SEGMENT}){{2}}/?"),
+}
 OBJECT_ID = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
 
 
-def github_clone_url(value: str | None) -> str:
-    url = urlsplit(value or "")
-    if url.scheme != "https" or url.netloc.lower() != "github.com" or url.query or url.fragment or not GITHUB_PATH.fullmatch(url.path):
-        raise HTTPException(422, "Enter an HTTPS URL for a public GitHub repository.")
-    owner, name = url.path.strip("/").split("/")
+def public_clone_url(value: str | None) -> str:
+    invalid_url = "Enter an HTTPS URL for a public repository on GitHub, GitLab.com, or Codeberg."
+    try:
+        url = urlsplit(value or "")
+    except ValueError:
+        raise HTTPException(422, invalid_url) from None
+    host = url.netloc.lower()
+    pattern = PUBLIC_GIT_PATHS.get(host)
+    if url.scheme != "https" or not pattern or url.query or url.fragment or not pattern.fullmatch(url.path):
+        raise HTTPException(422, invalid_url)
+    namespace, name = url.path.strip("/").rsplit("/", 1)
     name = name.removesuffix(".git")
     if name in {"", ".", ".."}:
-        raise HTTPException(422, "Enter a valid GitHub repository name.")
-    return f"https://github.com/{owner}/{name}.git"
+        raise HTTPException(422, "Enter a valid Git repository name.")
+    return f"https://{host}/{namespace}/{name}.git"
 
 
 def run_git(directory: Path, *arguments: str, timeout: int = 20) -> str:
@@ -78,8 +90,29 @@ class Repository:
                 return
             with TemporaryDirectory(dir=self.root, prefix="clone-") as temporary:
                 incoming = Path(temporary) / "repository.git"
-                run_git(self.root, "clone", "--bare", "--depth=1", "--single-branch", "--no-tags", "--template=", "--", repository_url, str(incoming), timeout=90)
+                run_git(
+                    self.root, "clone", "--bare", "--depth=1", "--single-branch", "--no-tags", "--template=",
+                    "--", repository_url, str(incoming), timeout=90,
+                )
                 run_git(incoming, "rev-parse", "--verify", "HEAD")
+                incoming.rename(self.base)
+
+    def initialize(self, files: dict[str, bytes]) -> None:
+        with self.lock():
+            with TemporaryDirectory(dir=self.root, prefix="init-") as temporary:
+                seed = Path(temporary) / "seed"
+                seed.mkdir()
+                for path, content in files.items():
+                    target = seed.joinpath(*path.split("/"))
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(content)
+                run_git(seed, "init", "--initial-branch=main", "--template=")
+                run_git(seed, "add", "-f", "--all")
+                run_git(seed, "-c", "user.name=Readcode", "-c", "user.email=workspace@readcode.local",
+                        "commit", "--allow-empty", "-m", "Initialize project")
+                incoming = Path(temporary) / "repository.git"
+                run_git(seed, "-c", "protocol.file.allow=always", "clone", "--bare", "--no-local", "--template=", "--", str(seed), str(incoming))
+                run_git(incoming, "remote", "remove", "origin")
                 incoming.rename(self.base)
 
     def open_worktree(self) -> None:

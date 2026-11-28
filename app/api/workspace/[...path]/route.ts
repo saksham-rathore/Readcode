@@ -3,10 +3,10 @@ import { appOrigin, noStore, sessionAuthorization } from "@/lib/account-server";
 
 const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const readRoutes = new RegExp(
-  `^(agents|projects|projects/${uuid}/threads|threads/${uuid}(?:/(?:worktree|files|file|diff|checkpoints))?)$`,
+  `^(agents|projects|projects/${uuid}/(?:threads|repository)|threads/${uuid}(?:/(?:worktree|files|file|diff|checkpoints))?)$`,
 );
 const writeRoutes = new RegExp(
-  `^(projects|chat|projects/${uuid}/(?:threads|clone)|threads/${uuid}/(?:task|worktree|file|checkpoints|restore))$`,
+  `^(project-sources|projects|chat|projects/${uuid}/(?:threads|repository|clone)|threads/${uuid}/(?:task|worktree|file|checkpoints|restore))$`,
 );
 
 function error(message: string, status: number) {

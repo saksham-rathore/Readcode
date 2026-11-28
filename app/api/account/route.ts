@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (!upstream.ok) {
       if (upstream.status === 401) return error("The email or password is incorrect.", 401);
       if (upstream.status === 409) return error("Unable to create an account with these details.", 409);
-      if (upstream.status === 422) return error(mode === "sign-up" ? "Enter a valid email and a password between 15 and 128 characters." : "Check your email and password.", 422);
+      if (upstream.status === 422) return error(mode === "sign-up" ? "Enter a valid email and a password between 8 and 20 characters." : "Check your email and password.", 422);
       if (upstream.status === 429) return error("Too many attempts. Try again in a few minutes.", 429);
       return error("Account access is temporarily unavailable.", 503);
     }

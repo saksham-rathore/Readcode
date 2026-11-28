@@ -122,8 +122,8 @@ async def chat(payload: ChatRequest, request: Request, owner_id: str = Depends(r
     api_key = agent.api_key.get_secret_value() if agent else settings.openai_api_key
     base_url = str(agent.base_url) if agent else settings.openai_base_url
     model = agent.model if agent else settings.openai_model
-    if not api_key:
-        raise HTTPException(status_code=503, detail="Assistant provider is not configured. Add OPENAI_API_KEY to backend/.env.")
+    if not api_key or not api_key.strip():
+        raise HTTPException(status_code=503, detail="This model needs provider setup before it can be used.")
     if conversation is None:
         conversation = Conversation(owner_id=owner_id, project_id=project.id if project else None, title=payload.prompt[:72])
         session.add(conversation)

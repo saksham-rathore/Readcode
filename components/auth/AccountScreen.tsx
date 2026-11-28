@@ -169,15 +169,15 @@ export default function AccountScreen({ mode }: { mode: "sign-in" | "sign-up" })
                     type={visible ? "text" : "password"}
                     autoComplete={signingUp ? "new-password" : "current-password"}
                     aria-describedby={signingUp ? "account-password-hint" : undefined}
-                    minLength={signingUp ? 15 : undefined}
-                    maxLength={128}
+                    pattern={signingUp ? "[\\s\\S]{8,20}" : undefined}
+                    maxLength={signingUp ? undefined : 128}
                     required
                   />
                   <button type="button" className="account-password-toggle" aria-label={visible ? "Hide password" : "Show password"} onClick={() => setVisible(!visible)}>
                     {visible ? <EyeSlashIcon size={20} aria-hidden="true" /> : <EyeIcon size={20} aria-hidden="true" />}
                   </button>
                 </div>
-                {signingUp && <p className="account-hint" id="account-password-hint">Use at least 15 characters.</p>}
+                {signingUp && <p className="account-hint" id="account-password-hint">Use 8 to 20 characters.</p>}
                 <button type="submit" className="account-primary" disabled={checking || pending}>
                   {pending ? (signingUp ? "Creating account…" : "Signing in…") : (signingUp ? "Create account" : "Sign in")}
                   <ArrowRightIcon size={17} aria-hidden="true" />

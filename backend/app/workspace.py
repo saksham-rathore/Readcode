@@ -1,16 +1,19 @@
 from typing import Annotated, Literal
-from uuid import UUID
+import base64
+import binascii
+from pathlib import PureWindowsPath
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
+from sqlalchemy import desc, select, update
 
 from .auth import ACCOUNT_OWNER_PREFIX, ActiveSession, Database
 from .config import get_settings
 from .models import Conversation, ConversationTask, Message, Project
-from .repository import TEXT_LIMIT, Repository, call_repository, github_clone_url
-from .schemas import MessageRead, ThreadCreate, ThreadHistory, ThreadRead, ThreadTask
+from .repository import TEXT_LIMIT, Repository, call_repository, public_clone_url
+from .schemas import MessageRead, ProjectRead, ThreadCreate, ThreadHistory, ThreadRead, ThreadTask, WorkspaceModelRead
 
 router = APIRouter(prefix="/v1/workspace")
 
@@ -31,6 +34,51 @@ class Checkpoint(Approval):
 
 class Restore(Approval):
     commit: str = Field(max_length=64)
+
+
+class ConnectRepository(BaseModel):
+    repository_url: str = Field(min_length=1, max_length=2048)
+
+
+class ImportFile(BaseModel):
+    path: str = Field(min_length=1, max_length=600)
+    content: str = Field(max_length=2_800_000)
+
+
+class ProjectSource(BaseModel):
+    source: Literal["new", "local", "git"]
+    name: str = Field(min_length=1, max_length=120, pattern=r"\S")
+    remote: str = Field(default="", max_length=2048)
+    files: list[ImportFile] = Field(default_factory=list, max_length=500)
+
+
+def import_files(entries: list[ImportFile]) -> dict[str, bytes]:
+    files = {}
+    files_lower = set()
+    parents = set()
+    remaining = 2 * 1024 * 1024
+    for entry in entries:
+        parts = entry.path.split("/")
+        if any(
+            not part or part in {".", ".."} or part.endswith((" ", ".")) or part.lower() == ".git"
+            or PureWindowsPath(part).is_reserved() or any(c in '\\:*?"<>|' or ord(c) < 32 for c in part)
+            for part in parts
+        ):
+            raise HTTPException(422, "The folder contains a path that cannot be imported.")
+        key = entry.path.casefold()
+        ancestors = {"/".join(parts[:length]).casefold() for length in range(1, len(parts))}
+        if key in files_lower or key in parents or files_lower.intersection(ancestors):
+            raise HTTPException(422, "The folder contains conflicting file paths.")
+        files_lower.add(key)
+        parents.update(ancestors)
+        try:
+            files[entry.path] = base64.b64decode(entry.content, validate=True)
+        except (ValueError, binascii.Error):
+            raise HTTPException(422, "A folder file could not be decoded.") from None
+        remaining -= len(files[entry.path])
+        if remaining < 0:
+            raise HTTPException(413, "Choose a folder with at most 2 MiB of files.")
+    return files
 
 
 def account_owner(session: ActiveSession) -> str:
@@ -79,14 +127,39 @@ def describe_thread(thread: Conversation, task: ConversationTask | None) -> Thre
     )
 
 
-@router.get("/agents")
+@router.get("/agents", response_model=list[WorkspaceModelRead])
 async def list_agents(_: Owner):
     settings = get_settings()
     return [
-        {"id": "default", "label": "Default assistant", "model": settings.openai_model},
-        *({"id": agent_id, "label": agent.label, "model": agent.model}
-          for agent_id, agent in settings.workspace_agents.items() if agent_id != "default"),
+        WorkspaceModelRead(
+            id="default", label="Default assistant", model=settings.openai_model,
+            available=bool((settings.openai_api_key or "").strip()),
+        ),
+        *(
+            WorkspaceModelRead(
+                id=agent_id, label=agent.label, model=agent.model,
+                available=bool(agent.api_key.get_secret_value().strip()),
+            )
+            for agent_id, agent in settings.workspace_agents.items() if agent_id != "default"
+        ),
     ]
+
+
+@router.post("/project-sources", response_model=ProjectRead, status_code=201)
+async def create_project_from_source(payload: ProjectSource, owner: Owner, db: Database):
+    project = Project(id=str(uuid4()), owner_id=owner, name=payload.name.strip())
+    if payload.source == "git":
+        project.repository_url = public_clone_url(payload.remote.strip())
+    else:
+        if payload.source == "local" and not payload.files:
+            raise HTTPException(422, "Choose a folder with at least one file.")
+        files = import_files(payload.files) if payload.source == "local" else {}
+        await db.commit()
+        repository = Repository(project.id)
+        await run_in_threadpool(call_repository, repository.initialize, files)
+    db.add(project)
+    await db.commit()
+    return project
 
 
 @router.get("/projects/{project_id}/threads", response_model=list[ThreadRead])
@@ -129,13 +202,35 @@ async def update_task(payload: ThreadTask, thread: ThreadAccess, db: Database):
     return describe_thread(thread, task)
 
 
+@router.get("/projects/{project_id}/repository")
+async def repository_status(project: ProjectAccess):
+    repository = Repository(project.id)
+    return await run_in_threadpool(call_repository, repository.status)
+
+
+@router.post("/projects/{project_id}/repository", response_model=ProjectRead)
+async def connect_repository(payload: ConnectRepository, project: ProjectAccess, db: Database):
+    url = public_clone_url(payload.repository_url.strip())
+    result = await db.execute(
+        update(Project)
+        .where(Project.id == project.id, Project.repository_url.is_(None))
+        .values(repository_url=url)
+        .returning(Project)
+    )
+    updated = result.scalar_one_or_none()
+    if updated is None:
+        raise HTTPException(409, "This project already has a repository.")
+    await db.commit()
+    return updated
+
+
 @router.post("/projects/{project_id}/clone")
 async def clone_project(_: Approval, project: ProjectAccess, db: Database):
     repository = Repository(project.id)
-    url = github_clone_url(project.repository_url)
+    url = public_clone_url(project.repository_url)
     await db.commit()
     await run_in_threadpool(call_repository, repository.clone, url)
-    return repository.status()
+    return await run_in_threadpool(call_repository, repository.status)
 
 
 @router.get("/threads/{thread_id}/worktree")

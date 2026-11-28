@@ -48,7 +48,7 @@ class SignedIn(BaseModel):
     expires_in: int
 
 
-async def read_credentials(request: Request) -> tuple[str, str]:
+async def read_credentials(request: Request, *, signing_up: bool = False) -> tuple[str, str]:
     body = bytearray()
     async for chunk in request.stream():
         if len(body) + len(chunk) > 4096:
@@ -61,7 +61,12 @@ async def read_credentials(request: Request) -> tuple[str, str]:
 
     email = credentials.email.casefold()
     password = credentials.password.get_secret_value()
-    if len(email) > 254 or not 1 <= len(password) <= 128:
+    if len(email) > 254:
+        raise HTTPException(422, "Enter a valid email address.")
+    if signing_up:
+        if not 8 <= len(password) <= 20:
+            raise HTTPException(422, "Use 8 to 20 characters for your password.")
+    elif not 1 <= len(password) <= 128:
         raise HTTPException(422, "Enter a valid email address and password of up to 128 characters.")
     return email, password
 
@@ -126,9 +131,7 @@ ActiveSession = Annotated[AccountSession, Depends(authenticated_session)]
 
 @router.post("/sign-up", response_model=SignedIn, status_code=201)
 async def sign_up(request: Request, response: Response, db: Database):
-    email, password = await read_credentials(request)
-    if len(password) < 15:
-        raise HTTPException(422, "Use at least 15 characters for your password.")
+    email, password = await read_credentials(request, signing_up=True)
     await limit_attempts(request, email)
     async with hash_slots:
         hashed = await run_in_threadpool(password_hasher.hash, password)
